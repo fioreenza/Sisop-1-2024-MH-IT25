@@ -44,17 +44,82 @@ d. Karena ada seseorang yang lapor kepada Cipung dan Abe bahwa pesanannya tidak 
 
         echo "B. Customer segment yang memiliki profit paling kecil: "
 
-        awk -F ',' 'NR>1 {profit[$7]+=$20} END {for (segment in profit) print segment","profit[segment]}' Sandbox.csv | sort -t',' -k2 -n | head -n 1
+        awk -F ',' 'NR>1 {profit[$7]+=$20} END {for (segment in profit) print segment","profit[segment]}' Sandbox.csv | sort -t',' -k2 -nr | head -n 1
 
         echo "C. 3 Category yang memiliki total profit paling tinggi: "
 
-        awk -F, '{if(NR>1) {profit[$7]+=$20}} END {for (category in profit) print category","profit[category]}' Sandbox.csv | sort -t',' -k2 -nr | head -n 3
+        awk -F, '{if(NR>1) {profit[$14]+=$20}} END {for (category in profit) print category","profit[category]}' Sandbox.csv | sort -t',' -k2 -nr | head -n 3
 
         echo "D. Purchase date dan amount (quantity) dari nama adriaens: "
 
         awk -F ',' '$6 ~ /Adriaens/ {print $2","$18}' Sandbox.csv
 
 ### Penjelasan Soal 1
+- Langkah pertama kita menggunakan command untuk mendownload file yang ada disoal sebagai berikut:
+
+        wget 'https://drive.usercontent.google.com/u/0/uc?id=1cC6MYBI3wRwDgqlFQE1OQUN83JAreId0&export=download' -O Sandbox.csv
+
+Perintah **wget** digunakan untuk mengunduh file dari URL yang diberikan.
+
+Opsi **-O** digunakan untuk menyimpan file yang diunduh dengan nama "**Sandbox.csv**".
+
+- Langkah kedua kita menggunakan command dibawah ini untuk menyortir sesuai bagian A:
+
+        awk -F, '{if(NR>1) {sales[$6]+=$17}} END {for (buyer in sales) print buyer","sales[buyer]}' Sandbox.csv |sort -t',' -k2 -nr | head -n 1
+
+Perintah **awk** digunakan untuk memproses data dari file "Sandbox.csv".
+
+**if(NR>1)** menghilangkan baris pertama (header) dari pemrosesan.
+
+**sales[$6]+=$17** menggukan nilai pada kolom ke-17 (total sales) dan menggunakan kolom ke-6 (nama pembeli).
+
+**print buyer","sales[buyer]** mencetak nama pembeli dan total salesnya
+
+**sort -t',' -k2 -nr** untuk mengurutkan berdasarkan kolom ke-2 (total sales) secara descending.
+
+**head -n 1** mengambil baris pertama dari output, yang merupakan nama pembeli dengan total sales paling tinggi.
+
+- Langkah ketiga kita menggunakan command dibawah ini untuk menyortir sesuai soal bagian B:
+
+        awk -F ',' 'NR>1 {profit[$7]+=$20} END {for (segment in profit) print segment","profit[segment]}' Sandbox.csv | sort -t',' -k2 -nr | head -n 1
+
+Perintah **awk** digunakan untuk memproses data dari file "Sandbox.csv".
+
+**if(NR>1)** menghilangkan baris pertama (header) dari pemrosesan.
+
+**profit[$7]+=$20** menggunakan nilai pada kolom ke-20 (profit) dan menggunakan kolom ke-7 (customer segment).
+
+**print segment","profit[segment]** mencetak customer segment dan total profitnya.
+
+**sort -t',' -k2 -nr** untuk mengurutkan berdasarkan kolom ke-2 (total profit) secara descending.
+
+**head -n 1** mengambil baris pertama dari output, yang merupakan customer segment dengan profit paling kecil.
+
+- Langkah ketiga kita menggunakan command dibawah ini untuk menyortir sesuai soal bagian C:
+
+        awk -F, '{if(NR>1) {profit[$14]+=$20}} END {for (category in profit) print category","profit[category]}' Sandbox.csv | sort -t',' -k2 -nr | head -n 3
+
+Perintah **awk** digunakan untuk memproses data dari file "Sandbox.csv".
+
+**if(NR>1)** menghilangkan baris pertama (header) dari pemrosesan.
+
+**profit[$14]+=$20** menjumlahkan nilai pada kolom ke-20 (profit) dan menggunakan kolom ke-7 (category).
+
+**print category","profit[category]** mencetak category dan total profitnya.
+
+**sort -t',' -k2 -nr** untuk mengurutkan berdasarkan kolom ke-2 (total profit) secara descending.
+
+**head -n 3** mengambil 3 baris pertama dari output, yang merupakan 3 category dengan total profit paling tinggi.
+
+- Langkah keempat kita menggunakan command dibawah ini untuk menyortir sesuai soal bagian D:
+
+        awk -F ',' '$6 ~ /Adriaens/ {print $2","$18}' Sandbox.csv
+
+Perintah **awk** digunakan untuk memproses data dari file "Sandbox.csv".
+
+**$6 ~ /Adriaens/** adalah pola pencarian yang mencari baris dengan kolom ke-6 (nama pembeli) yang mengandung kata "Adriaens".
+
+**{print $2","$18}** mencetak nilai pada kolom ke-2 (purchase date) dan kolom ke-18 (amount/quantity).
 
 
 ### Kendala Pengerjaan Soal 1
