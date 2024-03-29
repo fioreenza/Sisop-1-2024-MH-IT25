@@ -36,6 +36,7 @@ d. Karena ada seseorang yang lapor kepada Cipung dan Abe bahwa pesanannya tidak 
 ### Penyelesaian Soal 1
 
 ### Kendala Pengerjaan Soal 1
+- None
 
 ## Soal 2
 
