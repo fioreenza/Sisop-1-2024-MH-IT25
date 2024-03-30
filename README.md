@@ -125,6 +125,8 @@ Perintah **awk** digunakan untuk memproses data dari file "Sandbox.csv".
 ### Kendala Pengerjaan Soal 1
 - None
 
+### Screenshot Hasil Pengerjaan Soal 1
+
 ## Soal 2
 
 ### Deskripsi Soal 2
@@ -173,6 +175,8 @@ j. Oppie ingin programnya tercatat dengan baik, maka buatlah agar program bisa m
 
 ### Kendala Pengerjaan Soal 2
 
+### Screenshot Hasil Pengerjaan Soal 2
+
 ## Soal 3
 
 ### Deskripsi Soal 3
@@ -212,6 +216,8 @@ e. Hasil akhir:
 
 ### Kendala Pengerjaan Soal 3
 
+### Screenshot Hasil Pengerjaan Soal 3
+
 ## Soal 4
 
 ### Deskripsi Soal 4
@@ -244,4 +250,6 @@ type,mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,sw
 ### Penyelesaian Soal 4
 
 ### Kendala Pengerjaan Soal 4
+
+### Screenshot Hasil Pengerjaan Soal 4
 
