@@ -1035,7 +1035,7 @@ Kemudian, pertanyaan keamanan yang ditemukan akan ditampilkan kepada pengguna.
 
 ### Screenshot Hasil Pengerjaan Soal 2
 
-* **Register.sh**
+* **register.sh**
 
 Apabila salah memasukkan format email, maka tampilan seperti di bawah ini:
 
@@ -1053,7 +1053,7 @@ Kali ini mencoba mendaftarkan pengguna sebagai admin, dengan email harus mengand
 
 ![admin register](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/0c2fc696-7cc9-4233-a8b2-6c6f156cdc9b)
 
-Kali ini mencoba mendaftarkan pengguna sebagai user, untuk percobaan pada login.sh
+Kali ini mencoba mendaftarkan pengguna sebagai user, untuk percobaan pada login.sh nanti
 
 ![user baru register](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/a28cf8b9-a5b6-4e79-8044-a78bc05b18bc)
 
@@ -1065,11 +1065,125 @@ Berikut ini adalah tampilan dari auth.log setelah melakukan beberapa register pa
 
 ![auth_log1](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/76c016e7-638b-4132-abf8-a6417d278551)
 
-Terdapat beberapa kejadian "register failed" karena pengguna salah memasukkan format email dan password, serta informasi timestamp yang realtime. Selain itu, juga terdapat kejadian "register success" yang menandakan berhasilnya beberapa pengguna mendaftar, dengan informasi username dan status yang tercatat dalam log.
+Terdapat beberapa kejadian "REGISTER FAILED" karena pengguna salah memasukkan format email dan password, serta informasi timestamp yang realtime. Selain itu, juga terdapat kejadian "REGISTER SUCCESS" yang menandakan berhasilnya beberapa pengguna mendaftar, dengan informasi username dan status yang tercatat dalam log.
 
+* **login.sh**
 
+* 1. Opsi Login
 
+**Status as User**
 
+Jika memasukkan email yang tidak terdaftar dalam data users.txt, maka tampilan akan seperti di bawah ini:
+
+![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/fb7c8061-3d0c-44f5-b9c3-5b0aa34411b5)
+
+Jika salah memasukkan password, maka tampilan akan seperti di bawah ini:
+
+![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/2cd6863a-10d4-4f25-8be9-683d778f0511)
+
+Jika benar memasukkan password, maka tampilan akan seperti di bawah ini:
+
+![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/a85c8512-654d-4c66-abfd-396d47bb525b)
+
+Berikut ini adalah tampilan dari auth.log setelah melakukan percobaan login pada login.sh
+
+![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/91bf149f-f0bd-4144-b6a1-f39d1e55dc7f)
+
+Terdapat beberapa "LOGIN FAILED" karena pengguna salah memasukkan email yang dimana email tersebut tidak terdaftar di dalam list users.txt, dan pengguna juga salah memasukkan password untuk email tioirin2004@gmail.com. Selain itu, juga terdapat "LOGIN SUCCESS" karena pengguna dengan username axl berhasil login sebagai User.
+
+**Status as Admin**
+
+Berikut ini tampilan melakukan login sebagai Admin
+
+![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/19ecdeec-829c-429e-acfb-f6f12c741962)
+
+Berikut ini tampilan dari auth.log setelah melakukan login dengan username admin sebagai Admin
+
+![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/16e539bc-2fd6-46a3-8e22-e6a2f3188d43)
+
+1. Add User
+
+Di bawah ini adalah tampilan jika admin ingin menambahkan user dengan memasukkan email yang sudah terdaftar di data users.txt
+
+![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/ae1cebee-92a7-4879-8d2c-d22e2963c12f)
+
+Berikut ini tampilan jika Admin berhasil menambahkan user
+
+![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/10fa45d1-079e-41b7-bc10-8f21d590fb3e)
+
+Berikut ini tampilan dari auth.log setelah Admin melakukan "1. Add User"
+
+![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/181ba75b-8e88-4316-8207-8168ade99ab3)
+
+Begitu juga jika Admin ingin menambahkan user baru dengan status sebagai Admin baru.
+
+2. Edit User
+
+Di bawah ini adalah tampilan jika Admin ingin melakukan edit kepada pengguna dengan memasukkan email yang sudah terdaftar di data users.txt
+
+![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/858c0f25-4049-4384-8b2d-a02806ed52cc)
+
+Berikut ini tampilan jika Admin berhasil melakukan edit kepada pengguna
+
+![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/72e8a916-9583-4fb2-a196-f96b76e07165)
+
+Sebelum diedit:
+
+![user_baru](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/0994c745-0921-4c8f-8e5e-c04457ed1835)
+
+Setelah diedit:
+
+![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/ba0c5428-a099-4467-bee9-2d266d581669)
+
+Berikut ini tampilan dari auth.log setelah Admain melakukan "2. Edit User"
+
+![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/b5fc42d2-8d9d-40f8-9e5b-b71816b225dc)
+
+3. Delete User
+
+Di bawah ini adalah tampilan jika Admin ingin melakukan delete kepada pengguna dengan memasukkan email yang tidak terdaftar di data users.txt
+
+![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/aaa6561e-5e70-4f4f-821f-782d078841d5)
+
+Berikut ini jika Admin berhasil melakukan delete kepada pengguna
+
+![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/7e071a0a-d9aa-4fd6-8da1-e52a8a0ef3c0)
+
+Sebelum didelete:
+
+![sebelum_hapus_user](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/724e233e-fa41-44e0-bdcb-fe9e36369435)
+
+Setelah didelete:
+
+![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/26e69395-fd3e-4d59-8cd2-782a22be2f2b)
+
+Berikut ini tampilan dari auth.log setelah Admin melakukan "3. Delete User"
+
+![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/a792e488-d746-4a4c-891e-750e6e76ee6d)
+
+4. Logout
+
+Di bawah ini jika Admin melakukan Logout
+
+![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/2e9ebd32-e57b-4f1e-a71e-f753ae7ac516)
+
+Berikut ini tampilan dari auth.log setelah Admin melakukan "4. Logout"
+
+![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/f6491756-ae5c-4e1f-adbc-69c439f84db8)
+
+* 2. Opsi Forgot Password
+ 
+Di bawah ini adalah tampilan jika pengguna melakukan "2. Forgot Password" dengan memasukkan email yang tidak terdaftar di data users.txt
+
+![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/148dc5f3-b1b4-4f9e-9917-9bfaca866907)
+
+Berikut ini tampilan jika pengguna berhasil memasukkan email tetapi salah memasukkan security answer dari email tersebut
+
+![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/1e088330-43da-4e12-a491-aa42702b6277)
+
+Berikut ini tampilan jika pengguna memasukkan security asnwer yang benar dan akan menampilkan password dari email tersebut
+
+![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/3f0121e7-f266-427a-b59a-3aeeadc6ae87)
 
 ## Soal 3
 
