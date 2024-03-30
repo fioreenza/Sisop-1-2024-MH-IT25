@@ -436,10 +436,10 @@ e. Hasil akhir:
 
 
 - Setelah revisi
-  <img width="660" alt="Screenshot 2024-03-30 at 16 53 36" src="https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/147926732/0d60c9fc-046e-4839-be37-6925c7eab076">
-  <img width="518" alt="Screenshot 2024-03-30 at 16 49 25" src="https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/147926732/c13a6362-d9a3-4050-8fc5-7c0a595ed926">
-  <img width="240" alt="Screenshot 2024-03-30 at 13 45 48" src="https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/147926732/379b9bde-2273-49e2-bc60-52c96d37113f">
-  <img width="461" alt="Screenshot 2024-03-30 at 13 46 48" src="https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/147926732/2972920e-b38e-4d7d-aa75-9c3476d02580">
+  
+  <img width="660" alt="Screenshot 2024-03-30 at 16 53 36" src="https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/147926732/a7adca02-645f-4ec3-b20a-06a3feeb018a">
+
+<img width="518" alt="Screenshot 2024-03-30 at 16 49 25" src="https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/147926732/cb64f92e-b8a0-49e3-bc63-28fa87893746">
 
 
 
