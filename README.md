@@ -180,9 +180,862 @@ j. Oppie ingin programnya tercatat dengan baik, maka buatlah agar program bisa m
 
 ### Penyelesaian Soal 2
 
+- **Bash Script Register.sh**
+
+        #!/bin/bash
+
+        log_message()
+        {
+            local type="$1"
+            local message="$2"
+            local date_time=$(date +"[%d/%m/%y %H:%M:%S]")
+            echo "$date_time [$type] $message" >> auth.log
+        }
+        echo "Welcome to Registration System"
+        while true; do
+            echo "Enter your email:"
+            read user_email
+
+            contains_substring()
+            {
+                    [[ $1 == *"$2"* ]]
+            }
+
+            validate_email_format()
+            {
+                    email="$1"
+                    if [[ "$email" =~ ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$ ]]
+                    then
+                            return 0
+                    else
+                            return 1
+                    fi
+            }
+
+            if ! validate_email_format "$user_email"
+            then
+                    log_message "REGISTER FAILED" "ERROR Failed register, the user entered an email with the invalid format: $user_email"
+                    echo "Invalid email format. Please enter your email in the correct format."
+            elif grep -s -q "^Email: $user_email$" users.txt
+            then
+                    log_message "REGISTER FAILED" "ERROR Failed register, The user enters the registered email: $user_email"
+                    echo "Email $user_email is already registered. Please use another email for registration."
+            else
+                    break
+            fi
+        done
+
+        if contains_substring "$user_email" "admin"
+        then
+                status="Admin"
+        else
+                status="User"
+        fi
+
+        echo "Enter your username:"
+        read username
+
+        echo "Enter a security question:"
+        read security_question
+        echo "Enter the answer to your security question:"
+        read security_answer
+
+        while true; do
+                read -s -p "Enter a password (minimum 8 characters, at      least 1 uppercase letter, 1 lowercase letter, 1 digit, 1 symbol,        and not same as username, birhtdate, or name): " password
+            echo
+
+            if (( ${#password} < 8 ))
+            then
+                    log_message "REGISTER FAILED" "ERROR Failed register, the user entered the password in the wrong format"
+                    echo "The password must consist of a minimum of 8 characters."
+            elif ! [[ "$password" =~ [A-Z] ]]
+            then
+                    log_message "REGISTER FAILED" "ERROR Failed register, the user entered the password in the wrong format."
+                    echo "The password must contain at least 1 uppercase letter."
+            elif ! [[ "$password" =~ [a-z] ]]
+            then
+                    log_message "REGISTER FAILED" "ERROR Failed register, the user entered the password in the wrong format."
+                    echo "The password must contain at least 1 lowercase letter."
+            elif ! [[ "$password" =~ [0-9] ]]
+            then
+                    log_message "REGISTER FAILED" "ERROR Failed register, the user entered the password in the wrong format."
+                    echo "The password must contain at least 1 number."
+            else
+                    log_message "REGISTER SUCCESS" "user $username as $status registered succesfully"
+                    encrypted_password=$(echo -n "$password" | base64)
+                    break
+            fi
+        done
+
+        echo "Email: $email" >> users.txt
+        echo "Status: $status" >> users.txt
+        echo "Username: $username" >> users.txt
+        echo "Security Question: $security_question" >> users.txt
+        echo "Security Answer: $security_answer" >> users.txt
+        echo "Password: $encrypted_password" >> users.txt
+        echo " " >> users.txt
+
+        echo "Users registered succesfully!"
+
+- **Penjelasan**
+
+        log_message()
+        {
+            local type="$1"
+            local message="$2"
+            local date_time=$(date +"[%d/%m/%y %H:%M:%S]")
+            echo "$date_time [$type] $message" >> auth.log
+        }
+
+Fungsi ini digunakan untuk mencatat pesan log dengan format tertentu ke dalam file auth.log. Ini termasuk tipe pesan (seperti "REGISTER FAILED" atau "REGISTER SUCCESS"), waktu dan tanggal, dan pesan itu sendiri.
+
+        while true; do
+
+Memulai loop tak terbatas. Ini berarti bahwa bagian kode di dalamnya akan terus dieksekusi sampai ada instruksi `break` yang menghentikan loop.
+
+        contains_substring()
+        {
+            [[ $1 == *"$2"* ]]
+        }
+
+Fungsi untuk mengecek apakah string mengandung substring tertentu
+
+    validate_email_format()
+    {
+        email="$1"
+        if [[ "$email" =~ ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$ ]]
+        then
+            return 0 
+        else
+            return 1  
+        fi
+    }
+
+Fungsi ini digunakan untuk memvalidasi format alamat email yang dimasukkan pengguna. Ini menggunakan ekspresi reguler untuk memastikan bahwa alamat email sesuai dengan format yang diperlukan. Jika format email valid, fungsi ini mengembalikan nilai 0; jika tidak, mengembalikan nilai 1.
+
+      if ! validate_email_format "$user_email"
+      then
+              log_message "REGISTER FAILED" "ERROR Failed register, the user entered an email with the invalid format: $user_email"
+              echo "Invalid email format. Please enter your email in the correct format."
+      elif grep -s -q "^Email: $user_email$" users.txt
+      then
+              log_message "REGISTER FAILED" "ERROR Failed register, The user enters the registered email: $user_email"
+              echo "Email $user_email is already registered. Please use another email for registration."
+      else
+              break
+      fi
+
+Validasi format email dilakukan dengan menggunakan fungsi `validate_email_format "$user_email"`. Jika alamat email tidak valid, skrip mencatat pesan kesalahan ke dalam log dan memberi tahu pengguna bahwa alamat email yang dimasukkan tidak sesuai format.
+
+Setelah validasi format email, skrip melakukan validasi terhadap duplikat email. Ini dilakukan dengan menggunakan perintah `grep -s -q "^Email: $user_email$" users.txt`. Jika alamat email yang dimasukkan pengguna sudah terdaftar dalam file `users.txt`, maka skrip mencatat pesan kesalahan ke dalam log dan memberi tahu pengguna bahwa alamat email sudah terdaftar.
+
+Jika alamat email valid dan tidak terdaftar sebagai duplikat, maka skrip keluar dari loop menggunakan perintah `break`, dan lanjut ke langkah berikutnya dalam proses registrasi.
+
+    if contains_substring "$user_email" "admin"
+    then
+            status="Admin"
+    else
+            status="User"
+    fi
+
+Jika email pengguna mengandung kata "Admin", pengguna dianggap sebagai admin; jika tidak, mereka dianggap sebagai User.
+
+    echo "Enter your username:"
+    read username
+
+    echo "Enter a security question:"
+    read security_question
+    echo "Enter the answer to your security question:"
+    read security_answer
+
+Skrip meminta pengguna untuk memasukkan username, pertanyaan keamanan, jawaban keamanan, dan password. Kemudian akan menyimpan hasil tersebut ke dalam variabel masing-masingnya yaitu `username`, `security_question`, `security_answer`.
+
+    while true; do
+        read -s -p "Enter a password (minimum 8 characters, at least 1 uppercase letter, 1 lowercase letter, 1 digit, 1 symbol, and not same as username, birhtdate, or name): " password
+        echo
+
+        if (( ${#password} < 8 ))
+        then
+            log_message "REGISTER FAILED" "ERROR Failed register, the user entered the password in the wrong format"
+            echo "The password must consist of a minimum of 8 characters."
+        elif ! [[ "$password" =~ [A-Z] ]]
+        then
+            log_message "REGISTER FAILED" "ERROR Failed register, the user entered the password in the wrong format."
+            echo "The password must contain at least 1 uppercase letter."
+        elif ! [[ "$password" =~ [a-z] ]]
+        then
+            log_message "REGISTER FAILED" "ERROR Failed register, the user entered the password in the wrong format."
+            echo "The password must contain at least 1 lowercase letter."
+        elif ! [[ "$password" =~ [0-9] ]]
+        then
+            log_message "REGISTER FAILED" "ERROR Failed register, the user entered the password in the wrong format."
+            echo "The password must contain at least 1 number."
+        else
+            log_message "REGISTER SUCCESS" "user $username as $status registered succesfully"
+            encrypted_password=$(echo -n "$password" | base64)
+            break
+	    fi
+    done
+
+`while true; do` Memulai loop tak terbatas untuk memastikan bahwa pengguna akan diminta untuk memasukkan password baru sampai password yang valid dimasukkan.
+
+Skrip memeriksa apakah password memenuhi kriteria yang ditentukan, seperti panjang minimal, memiliki huruf besar dan kecil, dan memiliki angka. Jika password tidak memenuhi kriteria, skrip akan menolak registrasi dan mencatat pesan log.
+
+    log_message "REGISTER SUCCESS" "user $username as $status registered succesfully"
+    encrypted_password=$(echo -n "$password" | base64)
+    break
+
+Jika password memenuhi semua kriteria yang ditetapkan, maka pesan sukses akan dicatat ke dalam log dan password akan dienkripsi menggunakan base64 sebelum disimpan. Perintah `break` digunakan untuk keluar dari loop setelah password yang valid dimasukkan oleh pengguna.
+
+    echo "Email: $email" >> users.txt
+    echo "Status: $status" >> users.txt
+    echo "Username: $username" >> users.txt
+    echo "Security Question: $security_question" >> users.txt
+    echo "Security Answer: $security_answer" >> users.txt
+    echo "Password: $encrypted_password" >> users.txt
+    echo " " >> users.txt
+
+    echo "Users registered succesfully!"
+
+Setelah semua informasi pengguna dikumpulkan dan divalidasi, informasi tersebut akan ditambahkan ke dalam file users.txt.
+
+`echo " " >> users.txt`: Menyisipkan baris kosong sebagai pemisah antara entri pengguna yang satu dengan yang lain.
+
+`echo "Users registered succesfully!"`: Memberikan pesan bahwa pengguna telah terdaftar dengan sukses.
+
+- **Bash Script Login.sh**
+
+        #!/bin/bash
+
+        log_message()
+        {
+                local type="$1"
+                local message="$2"
+                local date_time=$(date +"[%d/%m/%y %H:%M:%S]")
+                echo "$date_time [$type] $message" >> auth.log
+        }
+
+        echo "Welcome to Login System"
+        echo "1. Login"
+        echo "2. Forgot Password"
+        read choices
+
+        case "$choices" in
+            "1")
+                echo "Welcome to Login System"
+                while true; do
+                        echo "Enter your email:"
+                        read user_email_login
+                        user_info_login=$(grep "^Email: $user_email_login" users.txt)
+
+                        if [ -z "$user_info_login" ]
+                        then
+                                log_message "LOGIN FAILED" "Login attempt failed. Email $user_email_login is not registered."
+                                echo "Email not registered."
+                        else
+                                break
+                        fi
+                done
+                status_info=$(grep -A 1 "Email: $user_email_login" users.txt | grep "Status" | cut -d ':' -f 2- | xargs)
+                username_info=$(grep -A 2 "Email: $user_email_login" users.txt | grep "Username" | cut -d ':' -f 2- | xargs)
+
+                if [ "User" == "$status_info" ]
+                then
+                        while true; do
+                                read -s -p "Enter your password: " password_login
+                                echo
+                                encrypted_password_login=$(grep -A 5 "Email: $user_email_login" users.txt | grep "Password" | cut -d ':' -f 2- | xargs)
+                                stored_password_login=$(echo "$encrypted_password_login" | base64 -d)
+
+                                if [ "$password_login" == "$stored_password_login" ]
+                                then
+                                        log_message "LOGIN SUCCESS" "user $username_info has logged succesfully as User"
+                                        echo "Login succesful!"
+                                        echo "You don't have admin privileges. Welcome!"
+                                        break
+                                else
+                                        log_message "LOGIN FAILED" "Login attempt failed. Password entered does not match for email $user_email_login."
+                                        echo "Incorrect password!"
+                                fi
+                        done
+                elif [ "Admin" == "$status_info" ]
+                then
+                        while true; do
+                                read -s -p "Enter your password: " password_login
+                                echo
+                                encrypted_password_login=$(grep -A 5 "Email: $user_email_login" users.txt | grep "Password" | cut -d ':' -f 2- | xargs)
+                                stored_password_login=$(echo "$encrypted_password_login" | base64 -d)
+
+                                if [ "$password_login" == "$stored_password_login" ]
+                                then
+                                        log_message "LOGIN SUCCESS" "user $username_info has logged succesfully as Admin"
+                                        echo "Login succesful!"
+                                        echo "Admin Menu"
+                                        echo "1. Add User"
+                                        echo "2. Edit User"
+                                        echo "3. Delete User"
+                                        echo "4. Logout"
+                                        read choices_admin
+                                        case "$choices_admin" in
+                                                "1")
+                                                        while true; do
+                                                                echo "Enter your email:"
+                                                                read user_email_admin
+
+                                                                contains_substring()
+                                                                {
+                                                                        [[ $1 == *"$2"* ]]
+                                                                }
+
+                                                                validate_email_format()
+                                                                {
+                                                                        email="$1"
+                                                                        if [[ "$email" =~ ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$ ]]
+                                                                        then
+                                                                                return 0
+                                                                        else
+                                                                                return 1
+                                                                        fi
+                                                                }
+                                                                if ! validate_email_format "$user_email_admin"
+                                                                then
+                                                                        log_message "REGISTER FAILED" "ERROR Failed register, the Admin $username_info entered an email in the wrong format: $user_email_admin"
+                                                                        echo "Invalid email format. Please enter your email in the correct format."
+                                                                elif grep -s -q "^Email: $user_email_admin$" users.txt
+                                                                then
+                                                                        log_message "REGISTER FAILED" "ERROR Failed register, the Admin $username_info enters the registered email: $user_email_admin"
+                                                                        echo "Email $user_email is already registered. Please use another email for registration."
+                                                                else
+                                                                        break
+                                                                fi
+                                                        done
+                                                        if contains_substring "$user_email_admin" "admin"
+                                                        then
+                                                                add_status_admin="Admin"
+                                                        else
+                                                                add_status_admin="User"
+                                                        fi
+                                                        echo "Enter your username:"
+                                                        read add_username_admin
+                                                        echo "Enter a security question:"
+                                                        read add_security_question_admin
+                                                        echo "Enter the answer to your security question:"
+                                                        read add_security_answer_admin
+
+                                                        while true; do
+                                                                read -s -p "Enter a password (minimum 8 characters, at least 1 uppercase letter, 1 lowercase letter, 1 digit, 1 symbol, and not same as username, birthdate, or name): " add_password_admin
+                                                                echo
+                                                                if (( ${#add_password_admin} < 8 ))
+                                                                then
+                                                                        log_message "REGISTER FAILED" "ERROR Failed register, the Admin $username_info entered the password in the wrong format"
+                                                                        echo "The password must consist of a minimum of 8 characters."
+                                                                elif ! [[ "$add_password_admin" =~ [A-Z] ]]
+                                                                then
+                                                                        log_message "REGISTER FAILED" "ERROR Failed register, the Admin $username_info entered the password in the wrong format"
+                                                                        echo "The password must contain at least 1 uppercase letter."
+                                                                elif ! [[ "$add_password_admin" =~ [a-z] ]]
+                                                                then
+                                                                        log_message "REGISTER FAILED" "ERROR Failed register, the Admin $username_info entered the password in the wrong format"
+                                                                        echo "The password must contain at least 1 lowercase letter."
+                                                                elif ! [[ "$add_password_admin" =~ [0-9] ]]
+                                                                then
+                                                                        log_message "REGISTER FAILED" "ERROR Failed register, the Admin $username_info entered the password in the wrong format"
+                                                                        echo "The password must contain at least 1 number."
+                                                                else
+                                                                        log_message "REGISTER SUCCESS" "The admin $username_info added user $add_username_admin as $add_status_admin registered succesfully"
+                                                                        add_encrypted_password_admin=$(echo -n "$add_password_admin" | base64)
+                                                                        break
+                                                                fi
+                                                        done
+                                                        echo "Email: $user_email_admin" >> users.txt
+                                                        echo "Status: $add_status_admin" >> users.txt
+                                                        echo "Username: $add_username_admin" >> users.txt
+                                                        echo "Security Question: $add_security_question_admin" >> users.txt
+                                                        echo "Security Answer: $add_security_answer_admin" >> users.txt
+                                                        echo "Password: $add_encrypted_password_admin" >> users.txt
+                                                        echo " " >> users.txt
+
+                                                        echo "Users added succesfully!"
+                                                ;;
+                                                "2")
+                                                        while true; do
+                                                                echo "Enter user's email you want to edit:"
+                                                                read edit_user_email
+                                                                line_number=$(grep -n "Email: $edit_user_email$" users.txt | cut -d ':' -f 1)
+
+                                                                if [ -z "$line_number" ]
+                                                                then
+                                                                        log_message "REGISTER FAILED" "(EDIT USER FAILED) the Admin $username_info enters the unregistered email: $edit_user_email"
+                                                                        echo "Email not registered."
+                                                                else
+                                                                        break
+                                                                fi
+                                                        done
+                                                        echo "Enter new username:"
+                                                        read new_username
+                                                        echo "Enter new security question:"
+                                                        read new_security_question
+                                                        echo "enter new security answer:"
+                                                        read new_security_answer
+                                                        while true; do
+                                                                read -s -p "Enter new password (minimum 8 characters, at least 1 uppercase letter, 1 lowercase letter, 1 digit, 1 symbol, and not same as username, birthdate, or name): " new_password
+                                                                echo
+                                                                if (( ${#new_password} < 8 ))
+                                                                then
+                                                                        log_message "REGISTER FAILED" "(EDIT USER FAILED) the Admin $username_info entered the password in the wrong format"
+                                                                        echo "The password must consist of a minimum of 8 characters."
+                                                                elif ! [[ "$new_password" =~ [A-Z] ]]
+                                                                then
+                                                                        log_message "REGISTER FAILED" "(EDIT USER FAILED) the Admin $username_info entered the password in the wrong format"
+                                                                        echo "The password must contain at least 1 uppercase letter."
+                                                                elif ! [[ "$new_password" =~ [a-z] ]]
+                                                                then
+                                                                        log_message "REGISTER FAILED" "(EDIT USER FAILED) the Admin $username_info entered the password in the wrong format"
+                                                                        echo "The password must contain at least 1 lowercase letter."
+                                                                elif ! [[ "$new_password" =~ [0-9] ]]
+                                                                then
+                                                                        log_message "REGISTER FAILED" "(EDIT USER FAILED) the Admin $username_info entered the password in the wrong format"
+                                                                        echo "The password must contain at least 1 number."
+                                                                else
+                                                                        log_message "REGISTER SUCCESS" "(EDIT USER SUCCESS) the Admin $username_info edited user $edit_user_email information succesfully"
+                                                                       new_encrypted_password=$(echo -n "$new_password" | base64)
+                                                                break
+                                                                fi
+                                                        done
+                                                        sed -i "$(($line_number + 2))s/Username: .*/Username: $new_username/" users.txt
+                                                        sed -i "$(($line_number + 3))s/Security Question: .*/Security Question: $new_security_question/" users.txt
+                                                        sed -i "$(($line_number + 4))s/Security Answer: .*/Security Answer: $new_security_answer/" users.txt
+                                                        sed -i "$(($line_number + 5))s/Password: .*/Password: $new_encrypted_password/" users.txt
+                                                        echo "User information updated succesfully!"
+                                                ;;
+                                                "3")
+                                                        while true; do
+                                                                echo "Enter user's email you want to delete:"
+                                                                read delete_user_email
+                                                                delete_user_info=$(grep "^Email: $delete_user_email" users.txt)
+
+                                                                if [ -z "$delete_user_info" ]
+                                                                then
+                                                                        log_message "USER DELETED FAILED" "The Admin $username_info enters the unregistered email: $delete_user_email"
+                                                                        echo "Email not registered."
+                                                                else
+                                                                        break
+                                                                fi
+                                                        done
+                                                        sed -i "/Email: $delete_user_email/,+5d" users.txt
+                                                        log_message "USER DELETED SUCCESS" "The Admin $username_info deleted user $delete_user_email succesfully"
+                                                        echo "User with email $delete_user_email has been deleted."
+                                                ;;
+                                                "4")
+                                                        log_message "LOGOUT" "The Admin $username_info has logged out"
+                                                        echo "Logout succesful!"
+                                                        exit 1
+                                                ;;
+                                        esac
+                                        break
+                                else
+                                        log_message "LOGIN FAILED" "ERROR Failed login tttempt on user $username_info with email $user_email_login as Admin entered the wrong password"
+                                        echo "Incorrect password!"
+                                fi
+                        done
+                fi
+            ;;
+            "2")
+                echo "Forgot password?"
+                while true; do
+                        echo "Enter your email:"
+                        read user_email
+                        user_info=$(grep "^Email: $user_email$" users.txt)
+
+                        if [ -z "$user_info" ]
+                        then
+                                log_message "PASSWORD RESET FAILED" "Attempted password reset failed. Email $user_email is not registered"
+                                echo "Email not registered."
+                        else
+                                break
+                        fi
+                done
+                security_question=$(grep -A 3 "Email: $user_email" users.txt | grep "Security Question" | cut -d ':' -f 2- | xargs)
+                echo "Security Question: $security_question"
+
+                while true; do
+                        echo "Enter your answer: "
+                        read security_answer
+
+                        stored_answer=$(grep -A 4 "Email: $user_email" users.txt | grep "Security Answer" | cut -d ':' -f 2- | xargs)
+                        encrypted_password_hash=$(grep -A 5 "Email: $user_email" users.txt | grep "Password" | cut -d ':' -f 2- | xargs)
+                        password_hash=$(echo "$encrypted_password_hash" | base64 -d)
+                        if [ "$security_answer" == "$stored_answer" ]
+                        then
+                                log_message "PASSWORD RESET SUCCESS" "Password reset successful for email $user_email"
+                                echo "Your password is: $password_hash"
+                                break
+                        else
+                                log_message "PASSWORD RESET FAILED" "Password reset attempt failed. Incorrect security answer for email $user_email"
+                                echo "Incorrect answer!"
+                        fi
+                done
+            ;;
+        esac
+
+- **Penjelasan**
+
+        log_message()
+        {
+                local type="$1"
+                local message="$2"
+                local date_time=$(date +"[%d/%m/%y %H:%M:%S]")
+                echo "$date_time [$type] $message" >> auth.log
+        }
+
+Fungsi ini digunakan untuk mencatat pesan log dengan format tertentu ke dalam file auth.log. Ini termasuk tipe pesan (seperti "REGISTER FAILED" atau "REGISTER SUCCESS"), waktu dan tanggal, dan pesan itu sendiri.
+
+    echo "Welcome to Login System"
+    echo "1. Login"
+    echo "2. Forgot Password"
+    read choices
+
+Pesan sambutan dan opsi login ditampilkan kepada pengguna, dan kemudian pengguna diminta untuk memilih opsi menggunakan `read choices`.
+
+    case "$choices" in
+        "1")
+            # Proses Login
+        ;;
+        "2")
+            # Proses Lupa Password
+        ;;
+    esac
+
+Struktur `case` digunakan untuk menangani pilihan yang dipilih pengguna setelah memilih opsi dari menu. Opsi "1" akan mengeksekusi proses login, sementara opsi "2" akan mengeksekusi proses lupa password.
+
+    echo "Welcome to Login System"
+    while true; do
+            echo "Enter your email:"
+            read user_email_login
+            user_info_login=$(grep "^Email: $user_email_login" users.txt)
+
+            if [ -z "$user_info_login" ]
+            then
+                    log_message "LOGIN FAILED" "Login attempt failed. Email $user_email_login is not registered."
+                    echo "Email not registered."
+            else
+                    break
+            fi
+    done
+
+Bagian kode ini merupakan proses untuk meminta pengguna memasukkan email saat melakukan proses login. Setelah email dimasukkan, sistem akan memeriksa apakah email tersebut terdaftar dalam database (dalam hal ini `users.txt`). Jika email tidak terdaftar, pesan kesalahan akan dicatat dalam log dan ditampilkan kepada pengguna. Jika email terdaftar, program akan keluar dari loop menggunakan `break` dan melanjutkan proses login selanjutnya.
+
+    status_info=$(grep -A 1 "Email: $user_email_login" users.txt | grep "Status" | cut -d ':' -f 2- | xargs)
+    username_info=$(grep -A 2 "Email: $user_email_login" users.txt | grep "Username" | cut -d ':' -f 2- | xargs)
+
+`status_info=$(grep -A 1 "Email: $user_email_login" users.txt | grep "Status" | cut -d ':' -f 2- | xargs)`: Menggunakan perintah `grep` untuk mencari baris yang mengandung email yang sesuai dalam file `users.txt`, lalu menggunakan `grep` lagi untuk mencari baris yang mengandung informasi status, kemudian menggunakan `cut` untuk memotong bagian yang tidak diperlukan, dan `xargs` untuk menghilangkan spasi ekstra dari hasilnya. Hasilnya disimpan dalam variabel `status_info`.
+
+`username_info=$(grep -A 2 "Email: $user_email_login" users.txt | grep "Username" | cut -d ':' -f 2- | xargs)`: Melakukan hal yang serupa dengan langkah sebelumnya untuk mendapatkan informasi username pengguna. Hasilnya disimpan dalam variabel `username_info`.
+
+    if [ "User" == "$status_info" ]
+    then
+            while true; do
+                    read -s -p "Enter your password: " password_login
+                    echo
+                    encrypted_password_login=$(grep -A 5 "Email: $user_email_login" users.txt | grep "Password" | cut -d ':' -f 2- | xargs)
+                    stored_password_login=$(echo "$encrypted_password_login" | base64 -d)
+
+                    if [ "$password_login" == "$stored_password_login" ]
+                    then
+                            log_message "LOGIN SUCCESS" "user $username_info has logged succesfully as User"
+                            echo "Login succesful!"
+                            echo "You don't have admin privileges. Welcome!"
+                            break
+                    else
+                            log_message "LOGIN FAILED" "Login attempt failed. Password entered does not match for email $user_email_login."
+                            echo "Incorrect password!"
+                    fi
+            done
+
+Pengguna diminta untuk memasukkan password menggunakan perintah `read -s -p "Enter your password: " password_login`, di mana `-s` digunakan untuk menyembunyikan input password.
+
+Password yang dimasukkan oleh pengguna dibandingkan dengan password yang disimpan dalam file `users.txt` setelah di-decode dari format base64.
+
+Jika password yang dimasukkan oleh pengguna sesuai dengan password yang disimpan, maka login berhasil dicatat dalam log dan pesan selamat datang ditampilkan.
+
+Jika password tidak cocok, pesan kesalahan ditampilkan dan pengguna diminta untuk memasukkan password kembali.
+
+Proses akan terus berulang sampai pengguna berhasil login.
+
+    elif [ "Admin" == "$status_info" ]
+    then
+            while true; do
+                    read -s -p "Enter your password: " password_login
+                    echo
+                    encrypted_password_login=$(grep -A 5 "Email: $user_email_login" users.txt | grep "Password" | cut -d ':' -f 2- | xargs)
+                    stored_password_login=$(echo "$encrypted_password_login" | base64 -d)
+
+                    if [ "$password_login" == "$stored_password_login" ]
+                    then
+
+`elif [ "Admin" == "$status_info" ]`: Ini adalah kondisi `elif` (else if) yang memeriksa apakah status_info sama dengan "Admin". Jika ya, maka proses login untuk admin akan dimulai.
+
+`while true; do`: Ini memulai loop tak terbatas di mana admin diminta untuk memasukkan kata sandi mereka.
+
+`read -s -p "Enter your password: " password_login`: Ini meminta admin untuk memasukkan kata sandi mereka secara diam-diam menggunakan opsi `-s` (silent) sehingga kata sandi tidak ditampilkan di layar.
+
+`encrypted_password_login=$(grep -A 5 "Email: $user_email_login" users.txt | grep "Password" | cut -d ':' -f 2- | xargs)`: Ini adalah perintah untuk mengambil kata sandi terenkripsi dari file `users.txt`. Ini mencari baris yang mengandung alamat email yang sesuai dengan alamat email yang dimasukkan admin, kemudian mengambil kata sandi dari baris tersebut. `grep -A 5` digunakan untuk mengambil 5 baris setelah baris yang cocok dengan pola pencarian, yang berisi kata sandi.
+
+`stored_password_login=$(echo "$encrypted_password_login" | base64 -d)`: Kata sandi yang dienkripsi sebelumnya di-dekode menggunakan `base64 -d` sehingga dapat dibandingkan dengan kata sandi yang dimasukkan oleh admin.
+
+`if [ "$password_login" == "$stored_password_login" ]`: Ini membandingkan kata sandi yang dimasukkan oleh admin dengan kata sandi yang disimpan di file `users.txt` setelah didekode. Jika kedua kata sandi cocok, admin dianggap berhasil login.
+
+log_message "LOGIN SUCCESS" "user $username_info has logged succesfully as Admin"
+
+    echo "Login succesful!"
+    echo "Admin Menu"
+    echo "1. Add User"
+    echo "2. Edit User"
+    echo "3. Delete User"
+    echo "4. Logout"
+    read choices_admin
+
+Struktur case digunakan untuk menangani pilihan yang dipilih oleh admin setelah login sebagai admin.
+Opsi-opsi tersebut meliputi menambahkan pengguna baru, mengedit pengguna, menghapus pengguna, dan logout.
+
+    echo "1. Add User"
+
+pada bagian ini, struktur fungsi script ini sama dengan Register.sh.
+
+    echo "2. Edit User"
+
+    while true; do
+            echo "Enter user's email you want to edit:"
+            read edit_user_email
+            line_number=$(grep -n "Email: $edit_user_email$" users.txt | cut -d ':' -f 1)
+
+            if [ -z "$line_number" ]
+            then
+                    log_message "REGISTER FAILED" "(EDIT USER FAILED) the Admin $username_info enters the unregistered email: $edit_user_email"
+                    echo "Email not registered."
+            else
+                    break
+            fi
+    done
+
+`while true; do`: Ini memulai loop tak terbatas di mana admin diminta untuk memasukkan alamat email pengguna yang ingin mereka edit.
+
+`echo "Enter user's email you want to edit:"`: Ini mencetak pesan yang meminta admin untuk memasukkan alamat email pengguna yang ingin mereka edit.
+
+`read edit_user_email`: Ini menyimpan alamat email yang dimasukkan admin ke dalam variabel edit_user_email.
+
+`line_number=$(grep -n "Email: $edit_user_email$" users.txt | cut -d ':' -f 1)`: Ini mencari nomor baris di file `users.txt` di mana alamat email yang dimasukkan admin cocok dengan yang terdaftar. `grep -n` digunakan untuk mencari nomor baris yang cocok, kemudian `cut -d ':' -f 1` digunakan untuk memisahkan nomor baris dari output `grep`.
+
+`if [ -z "$line_number" ]`: Ini memeriksa apakah variabel `$line_number` kosong, yang berarti tidak ada baris yang cocok dengan alamat email yang dimasukkan admin.
+
+`log_message "REGISTER FAILED" "(EDIT USER FAILED) the Admin $username_info enters the unregistered email: $edit_user_email"`: Jika tidak ada baris yang cocok, maka pesan kesalahan dicetak menggunakan fungsi `log_message`, dan pesan juga dicetak ke layar yang menginformasikan bahwa alamat email yang dimasukkan tidak terdaftar.
+
+`else`: Jika ada baris yang cocok dengan alamat email yang dimasukkan admin, maka loop dihentikan dengan `break` dan admin dapat melanjutkan proses pengeditan pengguna yang dipilih.
+
+    echo "Enter new username:"
+    read new_username
+    echo "Enter new security question:"
+    read new_security_question
+    echo "enter new security answer:"
+    read new_security_answer
+
+Admin diminta untuk memasukkan username baru untuk pengguna yang akan diubah.
+Selanjutnya, admin diminta untuk memasukkan pertanyaan keamanan baru untuk pengguna tersebut.
+Setelah itu, admin diminta untuk memasukkan jawaban keamanan baru untuk pengguna yang dipilih.
+
+    while true; do
+            read -s -p "Enter new password (minimum 8 characters, at least 1 uppercase letter, 1 lowercase letter, 1 digit, 1 symbol, and not same as username, birthdate, or name): " new_password
+            echo
+            if (( ${#new_password} < 8 ))
+            then
+                    log_message "REGISTER FAILED" "(EDIT USER FAILED) the Admin $username_info entered the password in the wrong format"
+                    echo "The password must consist of a minimum of 8 characters."
+            elif ! [[ "$new_password" =~ [A-Z] ]]
+            then
+                    log_message "REGISTER FAILED" "(EDIT USER FAILED) the Admin $username_info entered the password in the wrong format"
+                    echo "The password must contain at least 1 uppercase letter."
+            elif ! [[ "$new_password" =~ [a-z] ]]
+            then
+                    log_message "REGISTER FAILED" "(EDIT USER FAILED) the Admin $username_info entered the password in the wrong format"
+                    echo "The password must contain at least 1 lowercase letter."
+            elif ! [[ "$new_password" =~ [0-9] ]]
+            then
+                    log_message "REGISTER FAILED" "(EDIT USER FAILED) the Admin $username_info entered the password in the wrong format"
+                    echo "The password must contain at least 1 number."
+            else
+                    log_message "REGISTER SUCCESS" "(EDIT USER SUCCESS) the Admin $username_info edited user $edit_user_email information succesfully"
+                    new_encrypted_password=$(echo -n "$new_password" | base64)
+            break
+            fi
+    done
+
+`while true`; do Memulai loop tak terbatas untuk memastikan bahwa admin akan diminta untuk memasukkan password baru sampai password yang valid dimasukkan.
+
+Skrip memeriksa apakah password memenuhi kriteria yang ditentukan, seperti panjang minimal, memiliki huruf besar dan kecil, dan memiliki angka. Jika password tidak memenuhi kriteria, skrip akan menolak registrasi dan mencatat pesan log.
+
+    log_message "REGISTER SUCCESS" "user $username as $status registered succesfully"
+    encrypted_password=$(echo -n "$password" | base64)
+    break
+Jika password memenuhi semua kriteria yang ditetapkan, maka pesan sukses akan dicatat ke dalam log dan password akan dienkripsi menggunakan base64 sebelum disimpan. Perintah break digunakan untuk keluar dari loop setelah password yang valid dimasukkan oleh admin.
+
+    sed -i "$(($line_number + 2))s/Username: .*/Username: $new_username/" users.txt
+    sed -i "$(($line_number + 3))s/Security Question: .*/Security Question: $new_security_question/" users.txt
+    sed -i "$(($line_number + 4))s/Security Answer: .*/Security Answer: $new_security_answer/" users.txt
+    sed -i "$(($line_number + 5))s/Password: .*/Password: $new_encrypted_password/" users.txt
+    echo "User information updated succesfully!"
+
+`sed -i "$(($line_number + 2))s/Username: .*/Username: $new_username/" users.txt`: Menggunakan `sed` untuk mengubah baris yang mengandung informasi username pengguna yang diubah. `$line_number` adalah nomor baris yang sesuai dengan email pengguna yang diedit. Baris ini akan diganti dengan informasi username baru yang dimasukkan oleh admin.
+
+`sed -i "$(($line_number + 3))s/Security Question: .*/Security Question: $new_security_question/" users.txt`: Menggunakan `sed` untuk mengubah baris yang mengandung pertanyaan keamanan pengguna yang diubah. Baris ini akan diganti dengan pertanyaan keamanan baru yang dimasukkan oleh admin.
+
+`sed -i "$(($line_number + 4))s/Security Answer: .*/Security Answer: $new_security_answer/" users.txt`: Menggunakan `sed` untuk mengubah baris yang mengandung jawaban keamanan pengguna yang diubah. Baris ini akan diganti dengan jawaban keamanan baru yang dimasukkan oleh admin.
+
+`sed -i "$(($line_number + 5))s/Password: .*/Password: $new_encrypted_password/" users.txt`: Menggunakan `sed` untuk mengubah baris yang mengandung kata sandi pengguna yang diubah. Baris ini akan diganti dengan kata sandi baru yang telah dienkripsi sebelumnya oleh admin.
+
+Setelah semua perubahan dilakukan, pesan "User information updated succesfully!" akan dicetak untuk memberi tahu admin bahwa informasi pengguna telah berhasil diperbarui.
+
+    "3")
+            while true; do
+                    echo "Enter user's email you want to delete:"
+                    read delete_user_email
+                    delete_user_info=$(grep "^Email: $delete_user_email" users.txt)
+
+                    if [ -z "$delete_user_info" ]
+                    then
+                            log_message "USER DELETED FAILED" "The Admin $username_info enters the unregistered email: $delete_user_email"
+                            echo "Email not registered."
+                    else
+                            break
+                    fi
+            done
+            sed -i "/Email: $delete_user_email/,+5d" users.txt
+            log_message "USER DELETED SUCCESS" "The Admin $username_info deleted user $delete_user_email succesfully"
+            echo "User with email $delete_user_email has been deleted."
+    ;;
+
+Pada bagian `while true; do`, admin diminta untuk memasukkan alamat email pengguna yang ingin dihapus dari sistem.
+Kemudian, alamat email yang dimasukkan oleh admin diperiksa dalam file `users.txt` menggunakan perintah `grep`. Jika tidak ditemukan, pesan kesalahan ditampilkan dan admin diminta untuk memasukkan ulang alamat email yang valid.
+Jika alamat email ditemukan, perulangan akan diakhiri.
+
+Setelah admin memasukkan alamat email yang valid, perintah `sed -i "/Email: $delete_user_email/,+5d" users.txt` digunakan untuk menghapus entri pengguna yang terkait dengan alamat email tersebut beserta informasi pengguna lainnya dari file `users.txt`. Perintah ini menggunakan `sed` untuk menghapus baris yang dimulai dari baris yang mengandung alamat email hingga 5 baris setelahnya.
+
+Pesan log dicatat menggunakan `log_message()` untuk mencatat bahwa pengguna telah berhasil dihapus oleh admin.
+
+Pesan berhasil ditampilkan kepada admin bahwa pengguna dengan alamat email yang telah dihapus berhasil dihapus dari sistem.
+
+                                            "4")
+                                                    log_message "LOGOUT" "The Admin $username_info has logged out"
+                                                    echo "Logout succesful!"
+                                                    exit 1
+                                            ;;
+                                    esac
+                                    break
+                            else
+                                    log_message "LOGIN FAILED" "ERROR Failed login tttempt on user $username_info with email $user_email_login as Admin entered the wrong password"
+                                    echo "Incorrect password!"
+                            fi
+                    done
+            fi
+    ;;
+
+`case "$choices_admin" in`: Ini adalah awal dari sebuah struktur `case` yang mengevaluasi nilai dari variabel `$choices_admin`, yang merupakan pilihan yang dipilih oleh admin setelah berhasil login.
+
+`"4")`: Ini adalah opsi keempat di dalam struktur case, yang menunjukkan bahwa admin memilih untuk logout.
+
+`log_message "LOGOUT" "The Admin $username_info has logged out"`: Fungsi `log_message` dipanggil untuk mencatat pesan logout ke dalam log dengan informasi bahwa admin tertentu telah logout.
+
+`echo "Logout succesful!"`: Pesan ini dicetak untuk memberi tahu admin bahwa proses logout telah berhasil.
+
+`exit 1`: Perintah `exit` digunakan untuk keluar dari skrip dengan kode keluar 1, menandakan bahwa proses telah selesai dan skrip berakhir.
+
+    "2")
+            echo "Forgot password?"
+            while true; do
+                    echo "Enter your email:"
+                    read user_email
+                    user_info=$(grep "^Email: $user_email$" users.txt)
+
+                    if [ -z "$user_info" ]
+                    then
+                            log_message "PASSWORD RESET FAILED" "Attempted password reset failed. Email $user_email is not registered"
+                            echo "Email not registered."
+                    else
+                            break
+                    fi
+            done
+
+`while true; do`: Memulai loop tak terbatas untuk memastikan bahwa pengguna terus diminta untuk memasukkan email sampai email yang terdaftar ditemukan.
+
+`user_info=$(grep "^Email: $user_email$" users.txt)`: Mencari informasi pengguna berdasarkan email yang dimasukkan dalam file `users.txt` menggunakan perintah `grep`. Hasil pencarian disimpan dalam variabel `user_info`.
+
+`if [ -z "$user_info" ]`: Memeriksa apakah variabel `user_info` kosong, yang berarti email yang dimasukkan tidak terdaftar dalam sistem.
+
+Jika email tidak terdaftar, pesan kesalahan dicatat dalam log menggunakan fungsi `log_message()` dan pesan kesalahan juga ditampilkan kepada pengguna bahwa email tidak terdaftar.
+
+Jika email terdaftar, loop akan dihentikan dengan perintah `break`, dan proses reset password akan dilanjutkan.
+
+    security_question=$(grep -A 3 "Email: $user_email" users.txt | grep "Security Question" | cut -d ':' -f 2- | xargs)
+    echo "Security Question: $security_question"
+
+`grep -A 3 "Email: $user_email" users.txt`: Menggunakan `grep` untuk mencari baris yang mengandung email pengguna dalam file `users.txt`, serta tiga baris setelahnya (`-A 3`).
+
+`grep "Security Question"`: Menggunakan `grep` sekali lagi untuk mencari baris yang mengandung kata kunci "Security Question" di antara hasil pencarian sebelumnya.
+
+`cut -d ':' -f 2-`: Menggunakan `cut` untuk memotong setiap baris berdasarkan delimiter `:` dan mengambil bagian kedua dan seterusnya (kolom yang berisi pertanyaan keamanan).
+
+`xargs`: Menghapus spasi tambahan di sekitar hasil pencarian sebelum menampilkan pertanyaan keamanan.
+
+Kemudian, pertanyaan keamanan yang ditemukan akan ditampilkan kepada pengguna.
+
+                    while true; do
+                            echo "Enter your answer: "
+                            read security_answer
+
+                            stored_answer=$(grep -A 4 "Email: $user_email" users.txt | grep "Security Answer" | cut -d ':' -f 2- | xargs)
+                            encrypted_password_hash=$(grep -A 5 "Email: $user_email" users.txt | grep "Password" | cut -d ':' -f 2- | xargs)
+                            password_hash=$(echo "$encrypted_password_hash" | base64 -d)
+                            if [ "$security_answer" == "$stored_answer" ]
+                            then
+                                    log_message "PASSWORD RESET SUCCESS" "Password reset successful for email $user_email"
+                                    echo "Your password is: $password_hash"
+                                    break
+                            else
+                                    log_message "PASSWORD RESET FAILED" "Password reset attempt failed. Incorrect security answer for email $user_email"
+                                    echo "Incorrect answer!"
+                            fi
+                    done
+            ;;
+    esac
+
+`while true; do`: Memulai loop tak terbatas untuk memastikan bahwa pengguna akan diminta untuk memasukkan jawaban keamanan sampai jawaban yang benar dimasukkan.
+
+`echo "Enter your answer: "`: Menampilkan pesan untuk meminta pengguna memasukkan jawaban keamanan.
+`read security_answer`: Mengambil input jawaban keamanan dari pengguna dan menyimpannya dalam variabel `security_answer`.
+
+`stored_answer=$(grep -A 4 "Email: $user_email" users.txt | grep "Security Answer" | cut -d ':' -f 2- | xargs)`: Mengambil jawaban keamanan yang tersimpan dalam file `users.txt` untuk email yang sesuai dengan email pengguna yang lupa password.
+
+`encrypted_password_hash=$(grep -A 5 "Email: $user_email" users.txt | grep "Password" | cut -d ':' -f 2- | xargs)`: Mengambil hash kata sandi yang terenkripsi dari file `users.txt` untuk email yang sesuai dengan email pengguna yang lupa password.
+
+`password_hash=$(echo "$encrypted_password_hash" | base64 -d)`: Mendekripsi hash kata sandi yang terenkripsi menggunakan base64 sehingga kata sandi asli dapat ditampilkan kepada pengguna setelah berhasil me-reset kata sandi.
+
+`if [ "$security_answer" == "$stored_answer" ]`: Memeriksa apakah jawaban keamanan yang dimasukkan oleh pengguna sama dengan jawaban keamanan yang tersimpan di database.
+
+`log_message "PASSWORD RESET SUCCESS" "Password reset successful for email $user_email"`: Mencatat pesan log yang menyatakan bahwa proses reset password berhasil jika jawaban keamanan yang dimasukkan oleh pengguna sesuai dengan yang tersimpan.
+
+`echo "Your password is: $password_hash"`: Menampilkan kata sandi yang berhasil di-reset kepada pengguna.
+
+`break`: Menghentikan loop setelah proses reset password berhasil.
+
+`log_message "PASSWORD RESET FAILED" "Password reset attempt failed. Incorrect security answer for email $user_email"`: Mencatat pesan log yang menyatakan bahwa proses reset password gagal karena jawaban keamanan yang salah.
+`echo "Incorrect answer!"`: Memberikan pesan kepada pengguna bahwa jawaban keamanan yang dimasukkan tidak benar.
+
 ### Kendala Pengerjaan Soal 2
 
+**Tidak ada**
+
 ### Screenshot Hasil Pengerjaan Soal 2
+
+
 
 ## Soal 3
 
