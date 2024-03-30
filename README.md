@@ -129,6 +129,9 @@ Perintah **awk** digunakan untuk memproses data dari file "Sandbox.csv".
 
 ### Screenshot Hasil Pengerjaan Soal 1
 
+![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/145766477/b576c225-338b-4ca0-86a1-78ddd2bd8e48)
+
+
 ## Soal 2
 
 **Oleh Tio Axellino Irin (5027231065)**
