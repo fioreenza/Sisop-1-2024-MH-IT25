@@ -214,6 +214,103 @@ e. Hasil akhir:
 
 ### Penyelesaian Soal 3
 
+- Script bash awal.sh
+
+                #!/bin/bash
+                wget -O genshin.zip "https://drive.google.com/uc?export=download&id=1oGHdTf4_76_RacfmQIV4i7os4sGwa9vN"
+                unzip genshin.zip
+                unzip genshin_character.zip
+                cd genshin_character
+                
+                for file in *.jpg; do 
+                    new_name=$(echo "$file" | xxd -r -p) 
+                    mv "$file" "${new_name}.jpg" 
+                    echo "File $file telah direname menjadi ${new_name}.jpg" 
+                done
+                
+                while IFS=',' read -r name region element weapon; do 
+                    mkdir -p "$region" 
+                    new_name="${region} - ${name} - ${element} - ${weapon}.jpg" 
+                    mv "${name}.jpg" "${region}/${new_name}" 
+                    echo "File ${name}.jpg telah direname menjadi ${region}/${new_name}" 
+                done < "../list_character.csv"
+                
+                cd ..
+                
+                awk -F',' 'NR > 1 {senjata[$4]++} END {for (weapon in senjata) print senjata[weapon], weapon}' 'list_character.csv'
+                
+                rm genshin_character.zip genshin.zip list_character.csv
+
+- Penjelasan
+
+                wget -O genshin.zip "https://drive.google.com/uc?export=download&id=1oGHdTf4_76_RacfmQIV4i7os4sGwa9vN"
+                unzip genshin.zip
+                unzip genshin_character.zip
+                cd genshin_character
+Pertama-tama kita akan mendownload file genshin.zip dari Google Drive menggunakan wget, lalu mengekstrak file genshin.zip dengan perintah unzip, dan mengekstrak file genshin_character.zip juga menggunakan perintah unzip. Kemudian masuk ke direktori genshin_character menggunakan cd atau change directory.
+
+                for file in *.jpg; do 
+                    new_name=$(echo "$file" | xxd -r -p) 
+Disini kita akan menjalankan loop untuk setiap eksistensi file dengan format ".jpg" di dalam direktori genshin_character. Lalu di baris selanjutnya merupakan perintah untuk mengambil nama file, mengonversinya dari format heksadesimal menjadi string menggunakan xxd, dan menyimpan hasilnya dalam variabel new_name. 
+
+                    mv "$file" "${new_name}.jpg" 
+                    echo "File $file telah direname menjadi ${new_name}.jpg" 
+                done
+Setelah itu mengganti nama file menjadi nama baru yang telah disimpan di variabel new_name. Baris selanjutnya merupakan perintah untuk mencetak pesan yang memberi tahu pengguna bahwa file telah di rename.
+
+                while IFS=',' read -r name region element weapon; do 
+                    mkdir -p "$region" 
+                    new_name="${region} - ${name} - ${element} - ${weapon}.jpg" 
+Perintah ini adalah loop while yang membaca data dari file CSV bernama "list_character.csv" baris per baris. Lalu dijalankan perintah mkdir untuk membuat direktori dengan nama yang diambil dari variable "region". Selanjutnya kita akan membuat nama baru untuk file menggunakan nilai dari variabel $region, $name, $element, dan $weapon yang dipisahkan oleh tanda '-' dan diakhiri dengan '.jpg'. Nama baru ini disimpan di variable new_name.  
+
+                mv "${name}.jpg" "${region}/${new_name}" 
+                echo "File ${name}.jpg telah direname menjadi ${region}/${new_name}" 
+                done < "../list_character.csv"
+Setelah itu kita memindahkan file ke dalam direktori yang sesuai dengan nama region dan memberinya dengan nama baru menggunakan command mv. Perintah echo akan mencetak pesan yang memberi tahu pengguna bahwa file telah dipindahkan ke direktori yang sesuai dan file telah di rename.
+
+                cd ..
+                awk -F',' 'NR > 1 {senjata[$4]++} END {for (weapon in senjata) print senjata[weapon], weapon}' 'list_character.csv'
+Perintah "cd .." untuk mengembalikan ke direktori sebelumnya. Lalu kita menggunakan awk untuk membaca file "list_character.csv" dan menghitung kemunculan setiap nilai dalam kolom keempat (senjata). Kemudian mencetak jumlahnya dan nama senjata.
+
+                rm genshin_character.zip genshin.zip list_character.csv
+Terakhir, kita menggunakan perintah rm untuk menghapus file yang tidak digunakan, yaitu genshin_character.zip, genshin.zip, dan list_character.csv.
+
+
+- Script bash search.sh
+  
+                #!/bin/bash
+                cd genshin_character 
+                
+                found=0
+                for region in *; do
+                  if [ -d "$region" ]; then
+                    for file in "$region"/*.jpg; do
+                      if [ -f "$file" ]; then
+                        if [[ "$file" == *.jpg ]]; then
+                          steghide extract -sf "$file" -p "" -xf "$file.txt"
+                
+                          encrypted=$(cat "$file.txt")
+                          decrypted=$(echo "$encrypted" | base64 -d)
+                
+                         if grep -q "http" <<< "$decrypted"; then
+                            echo "[$(date '+%d/%m/%y %H:%M:%S')] [FOUND] [$file]" >> "image.log"
+                            wget "$decrypted"
+                            cat image.log
+                            found=1
+                            exit 0
+                          else
+                            echo "[$(date '+%d/%m/%y %H:%M:%S')] [NOT FOUND] [$file]" >> "image.log"
+                            cat image.log
+                            rm -f "$file.txt"
+                          fi
+                        fi
+                      fi
+                      sleep 1
+                    done
+                  fi
+                done
+                          
+
 ### Kendala Pengerjaan Soal 3
 
 ### Screenshot Hasil Pengerjaan Soal 3
