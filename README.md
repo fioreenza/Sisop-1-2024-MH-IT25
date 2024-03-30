@@ -1049,6 +1049,24 @@ Ketika memasukkan passoword yang tidak sesuai kriteria, misalkan saya disini mel
 
 ![Password salah](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/43d1a118-156d-4260-bbf7-1cc7175881ed)
 
+Kali ini mencoba mendaftarkan pengguna sebagai admin, dengan email harus mengandung kata "admin"
+
+![admin register](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/0c2fc696-7cc9-4233-a8b2-6c6f156cdc9b)
+
+Kali ini mencoba mendaftarkan pengguna sebagai user, untuk percobaan pada login.sh
+
+![user baru register](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/a28cf8b9-a5b6-4e79-8044-a78bc05b18bc)
+
+Berikut ini tampilan list users.txt setelah melakukan beberapa register pada register.sh
+
+![list users](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/18e6cf3b-f44d-48e1-af7c-4b561917b8f0)
+
+Berikut ini adalah tampilan dari auth.log setelah melakukan beberapa register pada register.sh
+
+![auth_log1](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/76c016e7-638b-4132-abf8-a6417d278551)
+
+terlihat bahwa ada register failed karena user salah memasukkan format email, salah memasukkan format password dengan timestamp yang real-time. Dan juga terlihat ada register success karena pengguna berhasil melakukan beberapa register dan di log tersebut ditampilkan username dan status yang didaftarkan.
+
 
 
 
