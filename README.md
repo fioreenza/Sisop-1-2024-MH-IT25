@@ -1035,6 +1035,23 @@ Kemudian, pertanyaan keamanan yang ditemukan akan ditampilkan kepada pengguna.
 
 ### Screenshot Hasil Pengerjaan Soal 2
 
+* **Register.sh**
+
+Apabila salah memasukkan format email, maka tampilan seperti di bawah ini:
+
+![salah format email](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/95b0839d-b166-4979-9c00-91068caaf07b)
+
+Apabila benar memasukkan format email, maka akan dilanjutkan untuk menginputkan username, security question, security answer, dan password. Seperti gambar di bawah ini:
+
+![format email yang benar](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/25f3df8a-4473-456e-9aaa-4dce785aeb03)
+
+Ketika memasukkan passoword yang tidak sesuai kriteria, misalkan saya disini melakukan percobaan memasukkan password batu(minimum 8 character), batusangkar(at least 1 uppercase letter), Batusangkar(at least 1 number), Batusangkar24(format password yang benar) 
+
+![Password salah](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/43d1a118-156d-4260-bbf7-1cc7175881ed)
+
+
+
+
 
 
 ## Soal 3
