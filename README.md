@@ -13,11 +13,13 @@ Pada Praktikum Modul 1 ini, kami diberikan tugas untuk mengerjakan Soal Shift Mo
 * Soal 1 yang dikerjakan oleh Wira Samudra Siregar (5027231041)
 * Soal 2 yang dikerjakan oleh Tio Axellino Irin (5027231065)
 * Soal 3 yang dikerjakan oleh Fiorenza Adelia Nalle (5027231053)
-* Soal 4 yang dikerjakan oleh kami bertiga
+* Soal 4 yang dikerjakan oleh Tio Axellino Irin (5027231065)
 
 # Proses dan Hasil Praktikum Modul 1
 
 ## Soal 1
+
+**Oleh Wira Samudra Siregar (5027231041)**
 
 ### Deskripsi Soal 1
 
@@ -129,6 +131,8 @@ Perintah **awk** digunakan untuk memproses data dari file "Sandbox.csv".
 
 ## Soal 2
 
+**Oleh Tio Axellino Irin (5027231065)**
+
 ### Deskripsi Soal 2
 
 Oppie merupakan seorang peneliti bom atom, ia ingin merekrut banyak peneliti lain untuk mengerjakan proyek bom atom nya, Oppie memiliki racikan bom atom rahasia yang hanya bisa diakses penelitinya yang akan diidentifikasi sebagai user, Oppie juga memiliki admin yang bertugas untuk memanajemen peneliti,  bantulah oppie untuk membuat program yang akan memudahkan tugasnya
@@ -178,6 +182,8 @@ j. Oppie ingin programnya tercatat dengan baik, maka buatlah agar program bisa m
 ### Screenshot Hasil Pengerjaan Soal 2
 
 ## Soal 3
+
+**Oleh Fiorenza Adelia Nalle (5027231053)**
 
 ### Deskripsi Soal 3
 
@@ -474,6 +480,8 @@ e. Hasil akhir:
 
 
 ## Soal 4
+
+**Oleh Tio Axellino Irin (5027231065)**
 
 ### Deskripsi Soal 4
 
