@@ -432,7 +432,18 @@ e. Hasil akhir:
 
 ### Screenshot Hasil Pengerjaan Soal 3
 - Sebelum revisi
+
+  Nama file sesuai format dan sesuai dengan region masing masing, namun file gambar tersembunyi, file image.log terdapat di dalam direktori genshin_character 
+  <img width="602" alt="Screenshot 2024-03-30 at 17 09 53" src="https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/147926732/18514b43-4a84-4c48-abae-7cd7e55d1df6">
   
+  File.txt terdapat di dalam direktori region mondstat, dan terdapat direktori kosong bernama region
+  <img width="640" alt="Screenshot 2024-03-30 at 17 09 59" src="https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/147926732/fc17434e-d379-426b-8ad5-9b1832743aed">
+
+  Output jumlah senjata dan nama senjata
+  <img width="135" alt="Screenshot 2024-03-30 at 17 07 23" src="https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/147926732/d57dae53-5c20-49cf-a9c3-fa8b86732693">
+
+  File di dalam direktori soal_3 hanya terdapat file awal.sh, file search.sh, dan folder genshin_character
+  <img width="490" alt="Screenshot 2024-03-30 at 17 09 16" src="https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/147926732/f7f2bcbd-5ef7-424d-af96-ad74bdecd7c9">
 
 
 - Setelah revisi
