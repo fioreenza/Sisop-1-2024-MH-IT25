@@ -1065,8 +1065,7 @@ Berikut ini adalah tampilan dari auth.log setelah melakukan beberapa register pa
 
 ![auth_log1](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/76c016e7-638b-4132-abf8-a6417d278551)
 
-terlihat bahwa ada register failed karena user salah memasukkan format email, salah memasukkan format password dengan timestamp yang real-time. Dan juga terlihat ada register success karena pengguna berhasil melakukan beberapa register dan di log tersebut ditampilkan username dan status yang didaftarkan.
-
+Terdapat beberapa kejadian "register failed" karena pengguna salah memasukkan format email dan password, serta informasi timestamp yang realtime. Selain itu, juga terdapat kejadian "register success" yang menandakan berhasilnya beberapa pengguna mendaftar, dengan informasi username dan status yang tercatat dalam log.
 
 
 
