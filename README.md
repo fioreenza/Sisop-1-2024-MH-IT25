@@ -216,102 +216,175 @@ e. Hasil akhir:
 
 - Script bash awal.sh
 
-                #!/bin/bash
-                wget -O genshin.zip "https://drive.google.com/uc?export=download&id=1oGHdTf4_76_RacfmQIV4i7os4sGwa9vN"
-                unzip genshin.zip
-                unzip genshin_character.zip
-                cd genshin_character
+        #!/bin/bash
+        wget -O genshin.zip "https://drive.google.com/uc?export=download&id=1oGHdTf4_76_RacfmQIV4i7os4sGwa9vN"
+        unzip genshin.zip
+        unzip genshin_character.zip
+        cd genshin_character
                 
-                for file in *.jpg; do 
-                    new_name=$(echo "$file" | xxd -r -p) 
-                    mv "$file" "${new_name}.jpg" 
-                    echo "File $file telah direname menjadi ${new_name}.jpg" 
-                done
+        for file in *.jpg; do
+          new_name=$(echo "$file" | xxd -r -p)
+          mv "$file" "${new_name}.jpg"
+          echo "File $file telah direname menjadi ${new_name}.jpg" 
+        done
                 
-                while IFS=',' read -r name region element weapon; do 
-                    mkdir -p "$region" 
-                    new_name="${region} - ${name} - ${element} - ${weapon}.jpg" 
-                    mv "${name}.jpg" "${region}/${new_name}" 
-                    echo "File ${name}.jpg telah direname menjadi ${region}/${new_name}" 
-                done < "../list_character.csv"
+        while IFS=',' read -r name region element weapon; do
+          mkdir -p "$region"
+          new_name="${region} - ${name} - ${element} - ${weapon}.jpg"
+          mv "${name}.jpg" "${region}/${new_name}"
+          echo "File ${name}.jpg telah direname menjadi ${region}/${new_name}" 
+        done < "../list_character.csv"
                 
-                cd ..
+        cd ..
                 
-                awk -F',' 'NR > 1 {senjata[$4]++} END {for (weapon in senjata) print senjata[weapon], weapon}' 'list_character.csv'
+        awk -F',' 'NR > 1 {senjata[$4]++} END {for (weapon in senjata) print senjata[weapon], weapon}' 'list_character.csv'
                 
-                rm genshin_character.zip genshin.zip list_character.csv
+        rm genshin_character.zip genshin.zip list_character.csv
 
 - Penjelasan
 
-                wget -O genshin.zip "https://drive.google.com/uc?export=download&id=1oGHdTf4_76_RacfmQIV4i7os4sGwa9vN"
-                unzip genshin.zip
-                unzip genshin_character.zip
-                cd genshin_character
+        wget -O genshin.zip "https://drive.google.com/uc?export=download&id=1oGHdTf4_76_RacfmQIV4i7os4sGwa9vN"
+        unzip genshin.zip
+        unzip genshin_character.zip
+        cd genshin_character
 Pertama-tama kita akan mendownload file genshin.zip dari Google Drive menggunakan wget, lalu mengekstrak file genshin.zip dengan perintah unzip, dan mengekstrak file genshin_character.zip juga menggunakan perintah unzip. Kemudian masuk ke direktori genshin_character menggunakan cd atau change directory.
 
-                for file in *.jpg; do 
-                    new_name=$(echo "$file" | xxd -r -p) 
+        for file in *.jpg; do
+          new_name=$(echo "$file" | xxd -r -p) 
 Disini kita akan menjalankan loop untuk setiap eksistensi file dengan format ".jpg" di dalam direktori genshin_character. Lalu di baris selanjutnya merupakan perintah untuk mengambil nama file, mengonversinya dari format heksadesimal menjadi string menggunakan xxd, dan menyimpan hasilnya dalam variabel new_name. 
 
-                    mv "$file" "${new_name}.jpg" 
-                    echo "File $file telah direname menjadi ${new_name}.jpg" 
-                done
+          mv "$file" "${new_name}.jpg"
+          echo "File $file telah direname menjadi ${new_name}.jpg" 
+        done
 Setelah itu mengganti nama file menjadi nama baru yang telah disimpan di variabel new_name. Baris selanjutnya merupakan perintah untuk mencetak pesan yang memberi tahu pengguna bahwa file telah di rename.
 
-                while IFS=',' read -r name region element weapon; do 
-                    mkdir -p "$region" 
-                    new_name="${region} - ${name} - ${element} - ${weapon}.jpg" 
+        while IFS=',' read -r name region element weapon; do 
+          mkdir -p "$region" 
+          new_name="${region} - ${name} - ${element} - ${weapon}.jpg" 
 Perintah ini adalah loop while yang membaca data dari file CSV bernama "list_character.csv" baris per baris. Lalu dijalankan perintah mkdir untuk membuat direktori dengan nama yang diambil dari variable "region". Selanjutnya kita akan membuat nama baru untuk file menggunakan nilai dari variabel $region, $name, $element, dan $weapon yang dipisahkan oleh tanda '-' dan diakhiri dengan '.jpg'. Nama baru ini disimpan di variable new_name.  
 
-                mv "${name}.jpg" "${region}/${new_name}" 
-                echo "File ${name}.jpg telah direname menjadi ${region}/${new_name}" 
-                done < "../list_character.csv"
+          mv "${name}.jpg" "${region}/${new_name}" 
+          echo "File ${name}.jpg telah direname menjadi ${region}/${new_name}" 
+        done < "../list_character.csv"
 Setelah itu kita memindahkan file ke dalam direktori yang sesuai dengan nama region dan memberinya dengan nama baru menggunakan command mv. Perintah echo akan mencetak pesan yang memberi tahu pengguna bahwa file telah dipindahkan ke direktori yang sesuai dan file telah di rename.
 
-                cd ..
-                awk -F',' 'NR > 1 {senjata[$4]++} END {for (weapon in senjata) print senjata[weapon], weapon}' 'list_character.csv'
+        cd ..
+        awk -F',' 'NR > 1 {senjata[$4]++} END {for (weapon in senjata) print senjata[weapon], weapon}' 'list_character.csv'
 Perintah "cd .." untuk mengembalikan ke direktori sebelumnya. Lalu kita menggunakan awk untuk membaca file "list_character.csv" dan menghitung kemunculan setiap nilai dalam kolom keempat (senjata). Kemudian mencetak jumlahnya dan nama senjata.
 
-                rm genshin_character.zip genshin.zip list_character.csv
+        rm genshin_character.zip genshin.zip list_character.csv
 Terakhir, kita menggunakan perintah rm untuk menghapus file yang tidak digunakan, yaitu genshin_character.zip, genshin.zip, dan list_character.csv.
 
 
 - Script bash search.sh
-  
-                #!/bin/bash
-                cd genshin_character 
-                
-                found=0
-                for region in *; do
-                  if [ -d "$region" ]; then
-                    for file in "$region"/*.jpg; do
-                      if [ -f "$file" ]; then
-                        if [[ "$file" == *.jpg ]]; then
-                          steghide extract -sf "$file" -p "" -xf "$file.txt"
-                
-                          encrypted=$(cat "$file.txt")
-                          decrypted=$(echo "$encrypted" | base64 -d)
-                
-                         if grep -q "http" <<< "$decrypted"; then
-                            echo "[$(date '+%d/%m/%y %H:%M:%S')] [FOUND] [$file]" >> "image.log"
-                            wget "$decrypted"
-                            cat image.log
-                            found=1
-                            exit 0
-                          else
-                            echo "[$(date '+%d/%m/%y %H:%M:%S')] [NOT FOUND] [$file]" >> "image.log"
-                            cat image.log
-                            rm -f "$file.txt"
-                          fi
-                        fi
-                      fi
-                      sleep 1
-                    done
-                  fi
-                done
-                          
 
+        #!/bin/bash
+  
+        cd genshin_character 
+  
+        found=0
+        for region in *; do
+          if [ -d "$region" ]; then
+            for file in "$region"/*.jpg; do
+              if [ -f "$file" ]; then
+                if [[ "$file" == *.jpg ]]; then
+                  steghide extract -sf "$file" -p "" -xf "$file.txt"
+        
+                  encrypted=$(cat "$file.txt")
+                  decrypted=$(echo "$encrypted" | base64 -d)
+        
+                 if grep -q "http" <<< "$decrypted"; then
+                    echo "[$(date '+%d/%m/%y %H:%M:%S')] [FOUND] [$file]" >> "image.log"
+                    wget "$decrypted"
+                    cat image.log
+                    found=1
+                    exit 0
+                  else
+                    echo "[$(date '+%d/%m/%y %H:%M:%S')] [NOT FOUND] [$file]" >> "image.log"
+                    cat image.log
+                    rm -f "$file.txt"
+                  fi
+                fi
+              fi
+              sleep 1
+            done
+          fi
+        done
+
+- Penjelasan
+
+        #!/bin/bash
+        cd genshin_character
+Perintah ini untuk mengubah direktori kerja saat ini ke dalam direktori genshin_character.
+
+        found=0
+Inisialisasi variabel found dengan nilai 0. Variabel ini digunakan untuk menandai apakah gambar tersembunyi telah ditemukan.
+
+        for region in *; do: 
+Loop ini akan berjalan untuk setiap entri dalam direktori saat ini.
+
+        if [ -d "$region" ]; then: 
+Perintah ini untuk memeriksa apakah entri saat ini adalah sebuah direktori.
+
+        for file in "$region"/*.jpg; do: 
+Loop ini akan berjalan untuk setiap file dengan ekstensi .jpg dalam direktori yang saat ini sedang diproses.
+
+        if [ -f "$file" ]; then: 
+Perintah ini untuk memeriksa apakah entri saat ini adalah sebuah file.
+
+        if [[ "$file" == *.jpg ]]; then: 
+Perintah ini untuk memeriksa apakah file saat ini memiliki format .jpg.
+
+        steghide extract -sf "$file" -p "" -xf "$file.txt" 
+Perintah ini untuk mengekstrak pesan yang tersembunyi dari file gambar menggunakan steghide, yang di dalamnya terdapat output berupa file.txt
+
+        encrypted=$(cat "$file.txt")
+        decrypted=$(echo "$encrypted" | base64 -d)
+Variable encrypted akan membaca pesan tersembunyi di dalam file.txt, lalu pesan tersebut didekripsi menggunakan base64 dan disimpan ke dalam variable decrypted.
+
+        if grep -q "http" <<< "$decrypted"; then
+Perintah ini untuk memeriksa apakah pesan yang didekripsi di dalam variabel decrypted mengandung string "http" atau berupa url.
+
+           echo "[$(date '+%d/%m/%y %H:%M:%S')] [FOUND] [$file]" >> "image.log"
+Jika benar, maka akan mencatat pesan ke dalam file log bahwa gambar tersembunyi telah ditemukan disertai dengan tanggal dan waktu.
+
+           wget "$decrypted"
+Setelah itu pesan yang berisi URL tersebut akan diunduh.
+
+           cat image.log
+Perintah ini akan mencetak isi file log ke terminal.
+
+           found=1
+           exit 0
+Perintah ini menandai bahwa gambar tersembunyi telah ditemukan, lalu di baris selanjutnya merupakan perintah untuk menghentikan program search.sh karena gambar berhasil ditemukan.
+
+        else
+          echo "[$(date '+%d/%m/%y %H:%M:%S')] [NOT FOUND] [$file]" >> "image.log"
+Jika tidak ditemukan URL dalam variable decrypted, maka akan mencatat pesan ke dalam file log bahwa gambar tersembunyi tidak ditemukan disertai dengan tanggal dan waktu.
+
+          cat image.log
+Perintah ini akan mencetak isi file log ke terminal.
+
+          rm -f "$file.txt"
+Lalu menghapus file.txt yang tidak mengandung string "http" atau bukan merupakan sebuah URL.
+
+        sleep 1
+Perintah ini memberikan jeda satu detik sebelum melanjutkan ke file berikutnya.
+
+  
 ### Kendala Pengerjaan Soal 3
+
+- Pada saat menjalankan script awal.sh, terbentuk direktori "region" di dalam direktori genshin_character. Hal ini berarti saat membuat direktori region, baris header terbaca sehingga membuat direktori yang bernama "region"
+- Penyelesaiannya :
+
+        { read; while IFS=',' read -r name region element weapon; do 
+            mkdir -p "$region" 
+            new_name="${region} - ${name} - ${element} - ${weapon}.jpg" 
+            mv "${name}.jpg" "${region}/${new_name}" 
+            echo "File ${name}.jpg telah direname menjadi ${region}/${new_name}" 
+        done; } < "../list_character.csv"
+  Dengan menambahkan "read;" untuk membaca baris pertama dan mengabaikannya sebelum memulai loop, sehingga direktori yang bernama region tidak dibuat.
+
 
 ### Screenshot Hasil Pengerjaan Soal 3
 
