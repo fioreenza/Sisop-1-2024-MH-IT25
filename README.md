@@ -1516,7 +1516,463 @@ type,mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,sw
 
 ### Penyelesaian Soal 4
 
+- Bash Script minute_log.sh
+
+        #!/bin/bash
+
+        #* * * * * /bin/bash /home/ludwigd/SisOP/Nomor4/minute_log.sh
+
+        #0 * * * * /bin/bash /home/ludwigd/SisOP/Nomor4/aggregate_minutes_to_hourly_log.sh
+
+        PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/home/ludwigd/SisOP/Nomor4
+
+        timestamp=$(date +"%Y%m%d%H%M%S")
+
+        mem_total=$(free -m | awk '/^Mem:/{print $2}')
+        mem_used=$(free -m | awk '/^Mem:/{print $3}')
+        mem_free=$(free -m | awk '/^Mem:/{print $4}')
+        mem_shared=$(free -m | awk '/^Mem:/{print $5}')
+        mem_buff=$(free -m | awk '/^Mem:/{print $6}')
+        mem_available=$(free -m | awk '/^Mem:/{print $7}')
+
+        swap_total=$(free -m | awk '/^Swap:/{print $2}')
+        swap_used=$(free -m | awk '/^Swap:/{print $3}')
+        swap_free=$(free -m | awk '/^Swap:/{print $4}')
+
+        path_user="/home/ludwigd/"
+        path_size=$(du -sh $path_user | awk '{print $1}')
+
+        echo "$mem_total,$mem_used,$mem_free,$mem_shared,$mem_buff,$mem_available,$swap_total,$swap_used,$swap_free,$path_user,$path_size" >> /home/ludwigd/SisOP/Nomor4/log/metrics_$timestamp.log
+
+        chmod 600 "/home/ludwigd/SisOP/Nomor4/log/metrics_$timestamp.log"
+
+* **Penjelasan**
+
+        #* * * * * /bin/bash /home/ludwigd/SisOP/Nomor4/minute_log.sh
+
+        #0 * * * * /bin/bash /home/ludwigd/SisOP/Nomor4/aggregate_minutes_to_hourly_log.sh
+
+Komentar yang dimulai dengan `* * * * *` memberikan petunjuk tentang penggunaan skrip ini dengan crontab, yang menandakan bahwa skrip ini akan dijalankan setiap menit
+
+Baris kedua adalah entri crontab yang menjalankan skrip lainnya (`aggregate_minutes_to_hourly_log.sh`) setiap jam.
+
+    PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/home/ludwigd/SisOP/Nomor4
+
+Menetapkan nilai variabel PATH untuk skrip ini. Ini menentukan jalur di mana shell akan mencari program atau perintah yang akan dieksekusi dalam skrip. Contohnya pada command `free`, `awk`, dan `du` yang masing-masing berada di path `/usr/bin`.
+
+    timestamp=$(date +"%Y%m%d%H%M%S")
+
+Menggunakan perintah `date` untuk mendapatkan timestamp saat ini dalam format tahun, bulan, tanggal, jam, menit, dan detik (YYYYMMDDHHMMSS).
+
+    mem_total=$(free -m | awk '/^Mem:/{print $2}')
+    mem_used=$(free -m | awk '/^Mem:/{print $3}')
+    mem_free=$(free -m | awk '/^Mem:/{print $4}')
+    mem_shared=$(free -m | awk '/^Mem:/{print $5}')
+    mem_buff=$(free -m | awk '/^Mem:/{print $6}')
+    mem_available=$(free -m | awk '/^Mem:/{print $7}')
+
+`mem_total=$(free -m | awk '/^Mem:/{print $2}')`: `free -m`: Perintah ini digunakan untuk menampilkan informasi tentang penggunaan memori sistem, dengan opsi `-m` untuk menampilkan output dalam megabyte.
+`awk '/^Mem:/{print $2}'`: Digunakan untuk melakukan pencarian pola dalam output `free -m`. Pola yang dicari adalah baris yang dimulai dengan "Mem:". Setelah menemukan baris tersebut, `awk` akan mencetak kolom kedua dari baris tersebut, yang merupakan total memori yang tersedia.
+
+`mem_used=$(free -m | awk '/^Mem:/{print $3}')`: Sama seperti sebelumnya, tetapi kali ini mencetak kolom ketiga dari baris yang cocok, yang merupakan jumlah memori yang sedang digunakan.
+
+Begitu juga dengan `mem_free`, `mem_shared`, `mem_buff`, dan `mem_available` hanya saja tinggal mencocokkannya dengan kolom dan baris yang sesuai pada tabel metrics memory.
+
+    swap_total=$(free -m | awk '/^Swap:/{print $2}')
+    swap_used=$(free -m | awk '/^Swap:/{print $3}')
+    swap_free=$(free -m | awk '/^Swap:/{print $4}')
+
+Sama seperti pada bagian menampilkan informasi tentang penggunaan memori sistem. Hanya pola yang dicari adalah baris yang dimulai dengan "Swap:" dan mencocokkannya sesuai dengan kolomnya.
+
+    path_user="/home/ludwigd/"
+    path_size=$(du -sh $path_user | awk '{print $1}')
+
+Menggunakan perintah `du -sh` untuk mendapatkan ukuran direktori pengguna (`/home/ludwigd/`) dan `awk` untuk mengekstrak ukuran tersebut dari output.
+
+    echo "$mem_total,$mem_used,$mem_free,$mem_shared,$mem_buff,$mem_available,$swap_total,$swap_used,$swap_free,$path_user,$path_size" >> /home/ludwigd/SisOP/Nomor4/log/metrics_$timestamp.log
+
+Menyimpan semua metrik yang dikumpulkan ke dalam file log dengan menggunakan timestamp sebagai bagian dari nama file log.
+
+    chmod 600 "/home/ludwigd/SisOP/Nomor4/log/metrics_$timestamp.log"
+
+Mengatur izin file log agar hanya pemiliknya (pengguna) yang dapat membaca dan menulis ke file tersebut.
+
+- Bash Script aggregate_minutes_to_hourly_log
+
+        #!/bin/bash
+
+        #* * * * * /bin/bash /home/ludwigd/SisOP/Nomor4/minute_log.sh
+
+        #0 * * * * /bin/bash /home/ludwigd/SisOP/Nomor4/aggregate_minutes_to_hourly_log.sh
+
+        PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/home/ludwigd/SisOP/Nomor4
+
+        log_dir="/home/ludwigd/SisOP/Nomor4/log"
+        files=$(ls -1 ${log_dir}/metrics_*.log | awk -F '[_.]' '{print $2$3}' | sort -n | tail -n 1)
+
+        latest_hour=${files:8:2}
+
+        file_agg="metrics_agg_${files:0:8}${latest_hour}.log"
+        timestamp=$(date +"%Y%m%d%H")
+
+        mem_total_min=1000000
+        mem_total_max=0
+        mem_total_sum=0
+        mem_used_min=1000000
+        mem_used_max=0
+        mem_used_sum=0
+        mem_free_max=0
+        mem_free_min=1000000
+        mem_free_sum=0
+        mem_shared_min=1000000
+        mem_shared_max=0
+        mem_shared_sum=0
+        mem_buff_min=1000000
+        mem_buff_max=0
+        mem_buff_sum=0
+        mem_available_min=1000000
+        mem_available_max=0
+        mem_available_sum=0
+        swap_total_min=1000000
+        swap_total_max=0
+        swap_total_sum=0
+        wswap_used_min=1000000
+        swap_used_max=0
+        swap_used_sum=0
+        swap_free_min=1000000
+        swap_free_max=0
+        swap_free_sum=0
+        path_size_min=1000000
+        path_size_max=0
+        path_size_sum=0
+        count=0
+
+        for file in /home/ludwigd/SisOP/Nomor4/log/metrics_${files:0:8}${latest_hour}*.log; do
+                while IFS=',' read -r mem_total mem_used mem_free mem_shared mem_buff mem_available swap_total swap_used swap_free path path_size; do
+                        if [[ "$mem_total" =~ ^[0-9]+$ ]]; then
+                                ((count++))
+                                mem_total_sum=$((mem_total_sum + mem_total))
+                                mem_used_sum=$((mem_used_sum + mem_used))
+                                mem_free_sum=$((mem_free_sum + mem_free))
+                                mem_shared_sum=$((mem_shared_sum + mem_shared))
+                                mem_buff_sum=$((mem_buff_sum + mem_buff))
+                                mem_available_sum=$((mem_available_sum + mem_available))
+                                swap_total_sum=$((swap_total_sum + swap_total))
+                                swap_used_sum=$((swap_used_sum + swap_used))
+                                swap_free_sum=$((swap_free_sum + swap_free))
+
+                                mem_total_min=$((mem_total < mem_total_min ? mem_total : mem_total_min))
+                                mem_total_max=$((mem_total > mem_total_max ? mem_total : mem_total_max))
+                                mem_used_min=$((mem_used < mem_used_min ? mem_used : mem_used_min))
+                                mem_used_max=$((mem_used > mem_used_max ? mem_used : mem_used_max))
+                                mem_free_max=$((mem_free > mem_free_max ? mem_free : mem_free_max))
+                                mem_free_min=$((mem_free < mem_free_min ? mem_free : mem_free_min))
+                                mem_shared_min=$((mem_shared < mem_shared_min ? mem_shared : mem_shared_min))
+                                mem_shared_max=$((mem_shared > mem_shared_max ? mem_shared : mem_shared_max))
+                                mem_buff_min=$((mem_buff < mem_buff_min ? mem_buff : mem_buff_min))
+                                mem_buff_max=$((mem_buff > mem_buff_max ? mem_buff : mem_buff_max))
+                                mem_available_min=$((mem_available < mem_available_min ? mem_available : mem_available_min))
+                                mem_available_max=$((mem_available > mem_available_max ? mem_available : mem_available_max))
+                                swap_total_min=$((swap_total < swap_total_min ? swap_total : swap_total_min))
+                                swap_total_max=$((swap_total > swap_total_max ? swap_total : swap_total_max))
+                                swap_used_min=$((swap_used < swap_used_min ? swap_used : swap_used_min))
+                                swap_used_max=$((swap_used > swap_used_max ? swap_used : swap_used_max))
+                                swap_free_min=$((swap_free < swap_free_min ? swap_free : swap_free_min))
+                                swap_free_max=$((swap_free > swap_free_max ? swap_free : swap_free_max))
+
+                                num_path_size=$(numfmt --from=iec $path_size 2>/dev/null || /usr/bin/echo "0")
+                                path_size_sum=$((path_size_sum + num_path_size))
+                                path_size_min=$((num_path_size < path_size_min ? num_path_size : path_size_min))
+                                path_size_max=$((num_path_size > path_size_max ? num_path_size : path_size_max))
+                        fi
+                done < $file
+        done
+
+        if [ $count -ne 0 ]
+        then
+                average_mem_total=$((mem_total_sum / count))
+                average_mem_used=$((mem_used_sum / count))
+                average_mem_free=$((mem_free_sum / count))
+                average_mem_shared=$((mem_shared_sum / count))
+                average_mem_buff=$((mem_buff_sum / count))
+                average_mem_available=$((mem_available_sum / count))
+                average_swap_total=$((swap_total_sum / count))
+                average_swap_used=$((swap_used_sum / count))
+                average_swap_free=$((swap_free_sum / count))
+                average_path_size=$((path_size_sum / count))
+        else
+                average_mem_total=0
+                average_mem_used=0
+                average_mem_free=0
+                average_mem_shared=0
+                average_mem_buff=0
+                average_mem_available=0
+                average_swap_total=0
+                average_swap_used=0
+                average_swap_free=0
+                average_path_size=0
+        fi
+
+        path_log="/home/ludwigd/SisOP/Nomor4/log"
+
+        echo "minimum,$mem_total_min,$mem_used_min,$mem_free_min,$mem_shared_min,$mem_buff_min,$mem_available_min,$swap_total_min,$swap_used_min,$swap_free_min,/home/ludwigd/,$(numfmt --to=iec $path_size_min)" >> /home/ludwigd/SisOP/Nomor4/log/metrics_agg_$timestamp.log
+        echo "maximum,$mem_total_max,$mem_used_max,$mem_free_max,$mem_shared_max,$mem_buff_max,$mem_available_max,$swap_total_max,$swap_used_max,$swap_free_max,/home/ludwigd/,$(numfmt --to=iec $path_size_max)" >> /home/ludwigd/SisOP/Nomor4/log/metrics_agg_$timestamp.log
+        echo "average,$average_mem_total,$average_mem_used,$average_mem_free,$average_mem_shared,$average_mem_buff,$average_mem_available,$average_swap_total,$average_swap_used,$average_swap_free,/home/ludwigd/,$(numfmt --to=iec $average_path_size)" >> /home/ludwigd/SisOP/Nomor4/log/metrics_agg_$timestamp.log
+
+        chmod 600 "/home/ludwigd/SisOP/Nomor4/log/metrics_agg_$timestamp.log"
+
+* **Penjelasan**
+
+        #* * * * * /bin/bash /home/ludwigd/SisOP/Nomor4/minute_log.sh
+
+        #0 * * * * /bin/bash /home/ludwigd/SisOP/Nomor4/aggregate_minutes_to_hourly_log.sh
+
+Sama seperti `minute_log`, komentar yang dimulai dengan `* * * * *` memberikan petunjuk tentang penggunaan skrip ini dengan crontab, yang menandakan bahwa skrip ini akan dijalankan setiap menit
+
+Baris kedua adalah entri crontab yang menjalankan skrip lainnya (`aggregate_minutes_to_hourly_log.sh`) setiap jam.
+
+    PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/home/ludwigd/SisOP/Nomor4
+
+Sama seperti `minute_log.sh`, yaitu menetapkan nilai variabel PATH untuk skrip ini. Ini menentukan jalur di mana shell akan mencari program atau perintah yang akan dieksekusi dalam skrip. Contohnya pada command awk, sort, tail, dan numfmt yang masing-masing berada di path `/usr/bin`
+
+    log_dir="/home/ludwigd/SisOP/Nomor4/log"
+    files=$(ls -1 ${log_dir}/metrics_*.log | awk -F '[_.]' '{print $2$3}' | sort -n | tail -n 1)
+
+    latest_hour=${files:8:2}
+
+    file_agg="metrics_agg_${files:0:8}${latest_hour}.log"
+    timestamp=$(date +"%Y%m%d%H")
+
+Variabel `log_dir`: Menyimpan direktori di mana file-file log berada.
+
+Variabel `files`: Menggunakan perintah `ls` untuk mencari semua file yang cocok dengan pola `metrics_*.log` di dalam direktori `log_dir`. Kemudian hasilnya diproses dengan menggunakan `awk` untuk memisahkan nama file berdasarkan karakter `_` dan `..` Bagian yang relevan dari setiap nama file kemudian dipilih dengan mencetak kolom 2 dan 3. Setelah itu, hasilnya diurutkan secara numerik (`sort -n`) dan hanya yang terbaru diambil (`tail -n 1`). Hasilnya akan menjadi nilai dari variabel `files`.
+
+Variabel `latest_hour`: Mengambil jam terbaru dari nama file log yang ditemukan di langkah sebelumnya. Ini dilakukan dengan menggunakan substring dari variabel `files` yang dimulai dari indeks 8 (untuk mengambil jam) dengan panjang 2 karakter.
+
+Variabel `file_agg`: Membuat nama file log agregat baru dengan menggunakan informasi tanggal dan jam terbaru yang diperoleh dari variabel `files` dan `latest_hour`. Ini digunakan untuk menyimpan hasil agregasi data.
+
+Variabel `timestamp`: Menyimpan timestamp saat ini dalam format `YYYYMMDDHH` menggunakan perintah `date`.
+
+    mem_total_min=1000000
+    mem_total_max=0
+    mem_total_sum=0
+    mem_used_min=1000000
+    mem_used_max=0
+    mem_used_sum=0
+    mem_free_max=0
+    mem_free_min=1000000
+    mem_free_sum=0
+    mem_shared_min=1000000
+    mem_shared_max=0
+    mem_shared_sum=0
+    mem_buff_min=1000000
+    mem_buff_max=0
+    mem_buff_sum=0
+    mem_available_min=1000000
+    mem_available_max=0
+    mem_available_sum=0
+    swap_total_min=1000000
+    swap_total_max=0
+    swap_total_sum=0
+    wswap_used_min=1000000
+    swap_used_max=0
+    swap_used_sum=0
+    swap_free_min=1000000
+    swap_free_max=0
+    swap_free_sum=0
+    path_size_min=1000000
+    path_size_max=0
+    path_size_sum=0
+    count=0
+
+`mem_total_min`: Menyimpan nilai minimum dari total memori.
+
+`mem_total_max`: Menyimpan nilai maksimum dari total memori.
+
+`mem_total_sum`: Menyimpan jumlah total dari nilai total memori.
+
+Dan seterusnya untuk metrik memory dan swap lainnya.
+
+Variabel `count` digunakan untuk menghitung jumlah entri yang diproses dalam file log. Variabel-variabel ini akan diperbarui saat skrip memproses setiap baris log untuk menghitung statistik. Variabel-variabel ini kemudian akan digunakan untuk menghitung nilai rata-rata setelah seluruh file log diproses.
+
+    for file in /home/ludwigd/SisOP/Nomor4/log/metrics_${files:0:8}${latest_hour}*.log; do
+            while IFS=',' read -r mem_total mem_used mem_free mem_shared mem_buff mem_available swap_total swap_used swap_free path path_size; do
+                    if [[ "$mem_total" =~ ^[0-9]+$ ]]; then
+                            ((count++))
+                        
+`for file in /home/ludwigd/SisOP/Nomor4/log/metrics_${files:0:8}${latest_hour}*.log; do`: Loop ini akan mengeksekusi perintah-perintah di dalamnya untuk setiap file yang sesuai dengan pola yang diberikan. Pada kasus ini, pola yang digunakan adalah `/home/ludwigd/SisOP/Nomor4/log/metrics_${files:0:8}${latest_hour}*.log`, yang akan mencocokkan semua file log yang dimulai dengan `metrics_` dan diikuti dengan tanggal dan jam yang sesuai.
+
+`while IFS=',' read -r mem_total mem_used mem_free mem_shared mem_buff mem_available swap_total swap_used swap_free path path_size; do`: Ini adalah perintah untuk membaca baris-baris dari file log yang dipisahkan oleh karakter koma (','), kemudian memasukkan nilai-nilai dari setiap kolom ke dalam variabel yang sesuai. Variabel yang digunakan di sini antara lain `mem_total`, `mem_used`, `mem_free`, dan seterusnya.
+
+`if [[ "$mem_total" =~ ^[0-9]+$ ]]`: Ini adalah kondisional if yang memeriksa apakah nilai `mem_total` merupakan bilangan bulat. Pemeriksaan ini dilakukan dengan menggunakan ekspresi reguler (`=~`) yang mencocokkan nilai `mem_total` dengan pola bilangan bulat. Jika nilai `mem_total` adalah bilangan bulat, maka blok pernyataan di dalam if akan dieksekusi.
+
+`((count++))`: Setiap kali baris log yang valid diproses (memiliki nilai `mem_total` yang merupakan bilangan bulat), variabel `count` akan diinkrementasi. Variabel `count` ini digunakan untuk menghitung jumlah baris log yang valid telah diproses, yang kemudian akan digunakan untuk menghitung rata-rata dari statistik yang dihasilkan.
+
+    mem_total_sum=$((mem_total_sum + mem_total))
+    mem_used_sum=$((mem_used_sum + mem_used))
+    mem_free_sum=$((mem_free_sum + mem_free))
+    mem_shared_sum=$((mem_shared_sum + mem_shared))
+    mem_buff_sum=$((mem_buff_sum + mem_buff))
+    mem_available_sum=$((mem_available_sum + mem_available))
+    swap_total_sum=$((swap_total_sum + swap_total))
+    swap_used_sum=$((swap_used_sum + swap_used))
+    swap_free_sum=$((swap_free_sum + swap_free))
+
+`mem_total_sum`: Menyimpan jumlah total memori yang digunakan pada iterasi saat ini.
+
+`mem_used_sum`: Menyimpan jumlah total memori yang terpakai pada iterasi saat ini.
+
+`mem_free_sum`: Menyimpan jumlah total memori yang tersedia pada iterasi saat ini.
+
+Dan seterusnya untuk metrik memory dan swap lainnya.
+
+Setiap variabel diupdate dengan menambahkan nilai yang baru saja dibaca dari file log. Misalnya, `mem_total_sum=$((mem_total_sum + mem_total))` menambahkan nilai `mem_total` dari baris saat ini ke `mem_total_sum`, dan demikian seterusnya untuk variabel lainnya.
+
+    mem_total_min=$((mem_total < mem_total_min ? mem_total : mem_total_min))
+    mem_total_max=$((mem_total > mem_total_max ? mem_total : mem_total_max))
+    mem_used_min=$((mem_used < mem_used_min ? mem_used : mem_used_min))
+    mem_used_max=$((mem_used > mem_used_max ? mem_used : mem_used_max))
+    mem_free_max=$((mem_free > mem_free_max ? mem_free : mem_free_max))
+    mem_free_min=$((mem_free < mem_free_min ? mem_free : mem_free_min))
+    mem_shared_min=$((mem_shared < mem_shared_min ? mem_shared : mem_shared_min))
+    mem_shared_max=$((mem_shared > mem_shared_max ? mem_shared : mem_shared_max))
+    mem_buff_min=$((mem_buff < mem_buff_min ? mem_buff : mem_buff_min))
+    mem_buff_max=$((mem_buff > mem_buff_max ? mem_buff : mem_buff_max))
+    mem_available_min=$((mem_available < mem_available_min ? mem_available : mem_available_min))
+    mem_available_max=$((mem_available > mem_available_max ? mem_available : mem_available_max))
+    swap_total_min=$((swap_total < swap_total_min ? swap_total : swap_total_min))
+    swap_total_max=$((swap_total > swap_total_max ? swap_total : swap_total_max))
+    swap_used_min=$((swap_used < swap_used_min ? swap_used : swap_used_min))
+    swap_used_max=$((swap_used > swap_used_max ? swap_used : swap_used_max))
+    swap_free_min=$((swap_free < swap_free_min ? swap_free : swap_free_min))
+    swap_free_max=$((swap_free > swap_free_max ? swap_free : swap_free_max))
+
+`mem_total_min=$((mem_total < mem_total_min ? mem_total : mem_total_min))`: Memperbarui nilai minimum `mem_total_min` dengan nilai `mem_total` jika nilai `mem_total` lebih kecil dari `mem_total_min`.
+
+`mem_total_max=$((mem_total > mem_total_max ? mem_total : mem_total_max))`: Memperbarui nilai maksimum `mem_total_max` dengan nilai mem_total jika nilai mem_total lebih besar dari mem_total_max.
+
+Begitu juga dengan variabel lainnya.
+
+    num_path_size=$(numfmt --from=iec $path_size 2>/dev/null || /usr/bin/echo "0")
+    path_size_sum=$((path_size_sum + num_path_size))
+    path_size_min=$((num_path_size < path_size_min ? num_path_size : path_size_min))
+    path_size_max=$((num_path_size > path_size_max ? num_path_size : path_size_max))
+
+`numfmt --from=iec $path_size 2>/dev/null || /usr/bin/echo "0"`: Perintah `numfmt` digunakan untuk mengonversi ukuran path yang disajikan dalam format yang dapat dibaca manusia (seperti "1.5G", "100M") menjadi bentuk numerik. Opsi `--from=iec` mengindikasikan bahwa ukuran akan diinterpretasikan menggunakan unit biner (KiB, MiB, GiB, dll.). Jika perintah ini gagal (misalnya, karena input tidak valid), pesan kesalahan akan diarahkan ke /dev/null dan nilai 0 akan digunakan sebagai ukuran path.
+
+`path_size_sum=$((path_size_sum + num_path_size))`: Menambahkan ukuran path yang telah dikonversi ke dalam variabel 
+
+`path_size_sum`, yang digunakan untuk menghitung total ukuran path dari semua log yang diproses.
+
+`path_size_min=$((num_path_size < path_size_min ? num_path_size : path_size_min))`: Membandingkan ukuran path yang baru dikonversi (`num_path_size`) dengan ukuran path minimum yang sebelumnya disimpan dalam variabel path_size_min. Jika ukuran path yang baru lebih kecil dari ukuran path minimum yang sebelumnya, maka nilai yang baru akan disimpan sebagai ukuran path minimum.
+
+`path_size_max=$((num_path_size > path_size_max ? num_path_size : path_size_max))`: Membandingkan ukuran path yang baru dikonversi (`num_path_size`) dengan ukuran path maksimum yang sebelumnya disimpan dalam variabel `path_size_max`. Jika ukuran path yang baru lebih besar dari ukuran path maksimum yang sebelumnya, maka nilai yang baru akan disimpan sebagai ukuran path maksimum.
+
+    done < $file
+
+Baris ini menandakan bahwa loop akan membaca baris-baris dari file yang diproses saat ini, yang ditentukan oleh variabel `$file`.
+
+    if [ $count -ne 0 ]
+    then
+            average_mem_total=$((mem_total_sum / count))
+            average_mem_used=$((mem_used_sum / count))
+            average_mem_free=$((mem_free_sum / count))
+            average_mem_shared=$((mem_shared_sum / count))
+            average_mem_buff=$((mem_buff_sum / count))
+            average_mem_available=$((mem_available_sum / count))
+            average_swap_total=$((swap_total_sum / count))
+            average_swap_used=$((swap_used_sum / count))
+            average_swap_free=$((swap_free_sum / count))
+            average_path_size=$((path_size_sum / count))
+    else
+            average_mem_total=0
+            average_mem_used=0
+            average_mem_free=0
+            average_mem_shared=0
+            average_mem_buff=0
+            average_mem_available=0
+            average_swap_total=0
+            average_swap_used=0
+            average_swap_free=0
+            average_path_size=0
+    fi
+
+`if [ $count -ne 0 ]`: Memeriksa apakah `count` tidak sama dengan nol, yang menunjukkan bahwa ada data yang telah diproses dan `count` adalah jumlah data yang valid.
+
+**Perhitungan Rata-rata**: Jika `count` tidak sama dengan nol, maka rata-rata dari masing-masing metrik dihitung dengan membagi jumlah total dengan count.
+
+**Penanganan Kasus Ketika `count` adalah Nol**: Jika `count` adalah nol, maka ini berarti tidak ada data yang diproses. Dalam hal ini, semua variabel rata-rata diatur menjadi 0.
+
+    path_log="/home/ludwigd/SisOP/Nomor4/log"
+
+Bagian ini menetapkan nilai variabel `path_log` dengan jalur direktori tempat file log disimpan. 
+
+    echo "minimum,$mem_total_min,$mem_used_min,$mem_free_min,$mem_shared_min,$mem_buff_min,$mem_available_min,$swap_total_min,$swap_used_min,$swap_free_min,/home/ludwigd/,$(numfmt --to=iec $path_size_min)" >> /home/ludwigd/SisOP/Nomor4/log/metrics_agg_$timestamp.log
+    echo "maximum,$mem_total_max,$mem_used_max,$mem_free_max,$mem_shared_max,$mem_buff_max,$mem_available_max,$swap_total_max,$swap_used_max,$swap_free_max,/home/ludwigd/,$(numfmt --to=iec $path_size_max)" >> /home/ludwigd/SisOP/Nomor4/log/metrics_agg_$timestamp.log
+    echo "average,$average_mem_total,$average_mem_used,$average_mem_free,$average_mem_shared,$average_mem_buff,$average_mem_available,$average_swap_total,$average_swap_used,$average_swap_free,/home/ludwigd/,$(numfmt --to=iec $average_path_size)" >> /home/ludwigd/SisOP/Nomor4/log/metrics_agg_$timestamp.log
+
+    chmod 600 "/home/ludwigd/SisOP/Nomor4/log/metrics_agg_$timestamp.log"
+
+`echo "minimum,$mem_total_min,...,/home/ludwigd/,$(numfmt --to=iec $path_size_min)" >> /home/ludwigd/SisOP/Nomor4/log/metrics_agg_$timestamp.log`: Menulis hasil perhitungan nilai minimum dari setiap metrik memori (seperti total memori, memori yang digunakan, dan lain-lain), swap (seperti total swap, swap yang digunakan, dan lain-lain), dan ukuran path ke dalam file log agregat. Nilai minimum untuk ukuran path telah dikonversi menjadi format yang dapat dibaca manusia menggunakan perintah `numfmt --to=iec`. Baris ini ditambahkan ke file log agregat dengan menggunakan operator `>>` agar hasilnya ditambahkan ke bagian akhir file tanpa menghapus konten yang sudah ada.
+
+`echo "maximum,$mem_total_max,...,/home/ludwigd/,$(numfmt --to=iec $path_size_max)" >> /home/ludwigd/SisOP/Nomor4/log/metrics_agg_$timestamp.log`: Sama seperti sebelumnya, tetapi untuk nilai maksimum dari setiap metrik.
+
+`echo "average,$average_mem_total,...,/home/ludwigd/,$(numfmt --to=iec $average_path_size)" >> /home/ludwigd/SisOP/Nomor4/log/metrics_agg_$timestamp.log`: Sama seperti sebelumnya, tetapi untuk nilai rata-rata dari setiap metrik.
+
+`chmod 600 "/home/ludwigd/SisOP/Nomor4/log/metrics_agg_$timestamp.log"`: Mengatur izin file log agregat agar hanya dapat dibaca dan ditulis oleh pemiliknya. Ini dilakukan dengan perintah `chmod`, di mana `600` menetapkan izin agar hanya pemilik file memiliki hak baca dan tulis, sedangkan grup dan pengguna lain tidak memiliki hak akses.
+
 ### Kendala Pengerjaan Soal 4
 
+Kendala saat pengerjaan Soal 4 adalah permasalahan crontab. Program berhasil dijalankan secara manual, tetapi saat dijalankan secara otomatis di tiap waktu tertentu menggunakan crontab tidak berjalan.
+
+![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/e8433b09-a310-4a18-bb64-0442e6ca58fb)
+
+Screenshoot di atas merupakan script pada crontab saya, tidak ada kesalahan penulisan script maupun path yang dicantumkan di script crontab.
+
+Setelah mencari-cari dengan bantuan GPT dan google, saya menemukan permasalahannya yaitu pada command path.
+
+![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/e13c611e-eb89-4a7c-8d0a-eb25ebc7ad40)
+
+Dari screenshoot GPT di atas, command-command yang digunakan pada bash script harus menggunakan path absolutnya seperti `awk`, `free`, `du`, `sort`, `ls`, `tail`, dan `numfmt`. Untuk mendapatkan path absolut dari command-command tersebut dengan menjalankan command `which (nama command)` di terminal. Path dari command-command tersebut adalah `/bin/usr`. 
+
+![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/95bb11cb-cad2-43b8-bef2-8c77decf12db)
+
+Dari Screenshoot di atas yang bersumber dari “[askubuntu.com](https://askubuntu.com/questions/117978/script-doesnt-run-via-crontab-but-works-fine-standalone/1223213#1223213)”, command `PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/home/ludwigd/SisOP/Nomor4` harus disertakan di script bash dan dengan tambahan `/home/ludwigd/SisOP/Nomor4` yang merupakan path dari program bash script yang akan dijalankan oleh crontab. Alhasil, program bash script tersebut bisa dijalankan secara otomatis oleh crontab.
+
 ### Screenshot Hasil Pengerjaan Soal 4
+
+Sebelum direvisi, program hanya berhasil dijalankan secara manual menggunakan `bash` maupun `./` dan menghasilkan output berupa file `metrics_$timestamp.log` oleh `minute_log.sh` dan `metrics_agg_$timestamp.log` oleh `aggregate_minutes_to_hourly_log.sh`. Tetapi program tidak menghasilkan output apa-apa jika dijalankan secara otomatis oleh crontab.
+
+Setelah direvisi:
+
+- **Bash Script minute_log.sh**
+
+![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/6f7ee298-6444-46b7-a035-194cec8b53a9)
+
+File-file log di atas dengan nama `metrics_$timestamp.log` tersebut merupakan hasil dari program `minute_log.sh` yang disimpan di directory `log` serta dijalankan secara otomatis tiap menitnya oleh crontab. Jika dilihat isi file nya dengan menggunakan `cat` maka tampilannya seperti di bawah ini:
+
+![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/6a0113f4-923c-4535-81af-3ed5867f7621)
+
+Terlihat bahwa angka-angka tersebut merupakan informasi statistik dari memory dan swap, yang urutannya yaitu dari memory total, memory used, memory free, memory shared, memory buff/cache, memory available, swap total, swap used, swap free, path user, dan path size.
+
+![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/2b7199be-0931-4c39-afab-ba2c77fba829)
+
+Screenshoot diatas merupakan metrics dari memory dan swap yang jalankan command `free -m` di terminal. Kita bisa liat bahwa ada kesamaan angka pada file metrics log tadi dengan metrics ini. Walaupun ada perbedaan, itu karena program `minute_log.sh` dijalankan dan mencatat informasi-informasi metrics tiap menitnya dan menyimpannya di file metrics log yang di mana informasi-informasi metrics tersebut dapat berubah sedikit tiap menitnya.
+
+- **Bash Script aggregate_minutes_to_hourly_log.sh**
+
+  ![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/f59baff3-c16c-4980-b0b8-5314c1796a6d)
+
+File-file log di atas dengan nama `metrics_agg_$timestamp.log` tersebut merupakan hasil dari program `aggregate_minutes_to_hourly_log.sh` yang dijalankan secara otomatis tiap jamnya oleh crontab. Jika dilihat isi filenya dengan menggunakan `cat` maka tampilannya seperti di bawah ini:
+
+![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/3a9aeb02-f47e-4a8e-aa08-25a0919808a7)
+
+Terlihat bahwa terdapat 3 baris informasi tersebut yaitu minimum, maximum, dan average yang masing-masingnya merupakan informasi statistik aggregasi dari file-file log satu jam terakhir. Minimum mencatat informasi statistik nilai minimal dari memory total, memory used, memory free, memory shared, memory buff/cache, memory available, swap total, swap used, swap free, dan path size selama satu jam terakhir. Maximum mencatat informasi statistik nilai maksimal dari memory total, memory used, memory free, memory shared, memory buff/cache, memory available, swap total, swap used, swap free, dan path size selama satu jam terakhir. Dan Average mencatat informasi statistik rata rata dari nilai memory total, memory used, memory free, memory shared, memory buff/cache, memory available, swap total, swap used, swap free, dan path size. Setelah program `aggregate_minutes_to_hourly_log.sh` mendapatkan ketiga informasi statistik selama satu jam terakhir, kemudian hasil dari informasi-informasi tersebut disimpan ke dalam file `metrics_agg_$timestamp.log` setiap satu jam.
+
+
+
+
+
+
+
 
