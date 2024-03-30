@@ -343,30 +343,21 @@ e. Hasil akhir:
   Variable encrypted akan membaca pesan tersembunyi di dalam file.txt, lalu pesan tersebut didekripsi menggunakan base64 dan disimpan ke dalam variable decrypted.
 
         if grep -q "http" <<< "$decrypted"; then
-  Perintah ini untuk memeriksa apakah pesan yang didekripsi di dalam variabel decrypted mengandung string "http" atau berupa url.
-
-           echo "[$(date '+%d/%m/%y %H:%M:%S')] [FOUND] [$file]" >> "image.log"
-  Jika benar, maka akan mencatat pesan ke dalam file log bahwa gambar tersembunyi telah ditemukan disertai dengan tanggal dan waktu.
-
-           wget "$decrypted"
-  Setelah itu pesan yang berisi URL tersebut akan diunduh.
+            echo "[$(date '+%d/%m/%y %H:%M:%S')] [FOUND] [$file]" >> "image.log"
+            wget "$decrypted"
+  Perintah ini untuk memeriksa apakah pesan yang didekripsi di dalam variabel decrypted mengandung string "http" atau berupa url. Jika benar, maka akan mencatat pesan ke dalam file log bahwa gambar tersembunyi telah ditemukan disertai dengan tanggal dan waktu. Setelah itu pesan yang berisi URL tersebut akan diunduh.
 
            cat image.log
-  Perintah ini akan mencetak isi file log ke terminal.
-
            found=1
            exit 0
-  Perintah ini menandai bahwa gambar tersembunyi telah ditemukan, lalu di baris selanjutnya merupakan perintah untuk menghentikan program search.sh karena gambar berhasil ditemukan.
+  Isi file log tadi akan muncul ke terminal. Selanjutnya, perintah 'found' menandai bahwa gambar tersembunyi telah ditemukan, lalu perintah 
+'exit 0' untuk menghentikan program search.sh karena gambar berhasil ditemukan.
 
         else
           echo "[$(date '+%d/%m/%y %H:%M:%S')] [NOT FOUND] [$file]" >> "image.log"
-  Jika tidak ditemukan URL dalam variable decrypted, maka akan mencatat pesan ke dalam file log bahwa gambar tersembunyi tidak ditemukan disertai dengan tanggal dan waktu.
-
-          cat image.log
-  Perintah ini akan mencetak isi file log ke terminal.
-
-          rm -f "$file.txt"
-  Lalu menghapus file.txt yang tidak mengandung string "http" atau bukan merupakan sebuah URL.
+             cat image.log
+             rm -f "$file.txt"
+  Jika tidak ditemukan URL dalam variable decrypted, maka akan mencatat pesan ke dalam file log bahwa gambar tersembunyi tidak ditemukan disertai dengan tanggal dan waktu. Lalu isi file log tersebut akan ditampilkan ke terminal. Perintah rm -f berfungsi untuk menghapus file.txt yang tidak mengandung string "http" atau bukan merupakan sebuah URL.
 
         sleep 1
   Perintah ini memberikan jeda satu detik sebelum melanjutkan ke file berikutnya.
@@ -385,8 +376,76 @@ e. Hasil akhir:
         done; } < "../list_character.csv"
   Dengan menambahkan "read;" untuk membaca baris pertama dan mengabaikannya sebelum memulai loop, sehingga direktori yang bernama region tidak dibuat.
 
+- Pada saat menjalankan script search.sh, file image.log dan file gambar tersembunyi berada di folder genshin_character, dan file .txt berada di dalam folder region. Sementara pada soal diminta untuk meletakkan file image.log, file gambar, dan file .txt di folder soal_3. Selain itu file.txt juga masih terdapat format .jpg sehingga formatnya menjadi .jpg.txt.
+- Penyelesaiannya :
+
+        #!/bin/bash
+        
+        dir="/home/fio/soal_3"
+        
+        cd genshin_character 
+        
+        found=0
+        for region in *; do
+          if [ -d "$region" ]; then
+            for file in "$region"/*.jpg; do
+              if [ -f "$file" ]; then
+                  steghide extract -sf "$file" -p "" -xf "$dir/$(basename "$file" .jpg).txt"
+                  
+                  encrypted=$(cat "$dir/$(basename "$file" .jpg).txt")
+                  decrypted=$(echo "$encrypted" | base64 -d)
+        
+                 if grep -q "http" <<< "$decrypted"; then
+                    echo "[$(date '+%d/%m/%y %H:%M:%S')] [FOUND] [$file]" >> "$dir/image.log"
+                    wget "$decrypted" -P "$dir"
+                    cat "$dir/image.log"
+                    found=1
+                    exit 0
+                  else
+                    echo "[$(date '+%d/%m/%y %H:%M:%S')] [NOT FOUND] [$file]" >> "$dir/image.log"
+                    cat "$dir/image.log"
+                    rm -f "$dir/$(basename "$file" .jpg).txt"
+                  fi
+              fi
+              sleep 1
+            done
+          fi
+        done
+
+        dir="/home/fio/soal_3"
+  Ditambahkan inisialisasi variabel dir di awal untuk menunjukkan path direktori /home/fio/soal_3.
+
+        steghide extract -sf "$file" -p "" -xf "$dir/$(basename "$file" .jpg).txt"
+  Baris ini mengekstrak file gambar menggunakan steghide dan outputnya yang berupa file txt akan disimpan ke direktori yang telah ditentukan oleh variabel dir. Terdapat juga penambahan "basename "$file" .jpg" untuk menghapus eksistensi format .jpg.
+
+        echo "[$(date '+%d/%m/%y %H:%M:%S')] [FOUND] [$file]" >> "$dir/image.log"
+        wget "$decrypted" -P "$dir"
+        cat "$dir/image.log"
+  Baris ini akan mencatat pesan ke dalam file log bahwa gambar tersembunyi telah ditemukan disertai dengan tanggal dan waktu. File log ini akan disimpan ke direktori yang ditentukan oleh variabel dir. Lalu menggunakan wget untuk mengunduh konten dari URL yang disimpan dalam variabel decrypted ke direktori yang ditentukan oleh variabel dir. Setelah itu perintah cat untuk menampilkan pesan yang tadi telah dicatat di file log ke terminal.
+
+        echo "[$(date '+%d/%m/%y %H:%M:%S')] [NOT FOUND] [$file]" >> "$dir/image.log"
+        cat "$dir/image.log"
+        rm -f "$dir/$(basename "$file" .jpg).txt"
+  Baris ini akan mencatat pesan ke dalam file log bahwa gambar tersembunyi tidak ditemukan disertai dengan tanggal dan waktu. File log ini akan disimpan ke direktori yang ditentukan oleh variabel dir. Setelah itu perintah cat untuk menampilkan pesan yang tadi telah dicatat di file log ke terminal. Perintah rm -f berfungsi untuk menghapus file.txt yang tidak mengandung string "http" atau bukan merupakan sebuah URL.
+
+
 
 ### Screenshot Hasil Pengerjaan Soal 3
+- Sebelum revisi
+  
+
+
+- Setelah revisi
+  <img width="660" alt="Screenshot 2024-03-30 at 16 53 36" src="https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/147926732/0d60c9fc-046e-4839-be37-6925c7eab076">
+  <img width="518" alt="Screenshot 2024-03-30 at 16 49 25" src="https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/147926732/c13a6362-d9a3-4050-8fc5-7c0a595ed926">
+  <img width="240" alt="Screenshot 2024-03-30 at 13 45 48" src="https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/147926732/379b9bde-2273-49e2-bc60-52c96d37113f">
+  <img width="461" alt="Screenshot 2024-03-30 at 13 46 48" src="https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/147926732/2972920e-b38e-4d7d-aa75-9c3476d02580">
+
+
+
+
+
+
 
 ## Soal 4
 
