@@ -1933,7 +1933,7 @@ Setelah mencari-cari dengan bantuan GPT dan google, saya menemukan permasalahann
 
 ![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/e13c611e-eb89-4a7c-8d0a-eb25ebc7ad40)
 
-Dari screenshoot GPT di atas, command-command yang digunakan pada bash script harus menggunakan path absolutnya seperti `awk`, `free`, `du`, `sort`, `ls`, `tail`, dan `numfmt`. Untuk mendapatkan path absolut dari command-command tersebut dengan menjalankan command `which (nama command)` di terminal. Path dari command-command tersebut adalah `/bin/usr`. 
+Dari screenshoot GPT di atas, command-command yang digunakan pada bash script harus menggunakan path absolutnya seperti `awk`, `free`, `du`, `sort`, `ls`, `tail`, dan `numfmt`. Untuk mendapatkan path absolut dari command-command tersebut dengan menjalankan command `which (nama command)` di terminal. Path dari command-command tersebut adalah `/usr/bin`. 
 
 ![image](https://github.com/fioreenza/Sisop-1-2024-MH-IT25/assets/144349814/95bb11cb-cad2-43b8-bef2-8c77decf12db)
 
